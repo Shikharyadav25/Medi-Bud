@@ -122,13 +122,37 @@ export default function NearbyPage() {
     const cfg = PLACE_TYPES.find(p => p.key === type)!;
     const radius = 10000; // 10 km
 
+    let overpassSubQuery = "";
+    if (type === "hospital") {
+      overpassSubQuery = `
+        nwr["amenity"="hospital"](around:${radius},${lat},${lng});
+        nwr["healthcare"="hospital"](around:${radius},${lat},${lng});
+      `;
+    } else if (type === "clinic") {
+      overpassSubQuery = `
+        nwr["amenity"="clinic"](around:${radius},${lat},${lng});
+        nwr["amenity"="medical_centre"](around:${radius},${lat},${lng});
+        nwr["healthcare"="clinic"](around:${radius},${lat},${lng});
+        nwr["healthcare"="centre"](around:${radius},${lat},${lng});
+      `;
+    } else if (type === "pharmacy") {
+      overpassSubQuery = `
+        nwr["amenity"="pharmacy"](around:${radius},${lat},${lng});
+        nwr["shop"="chemist"](around:${radius},${lat},${lng});
+        nwr["shop"="pharmacy"](around:${radius},${lat},${lng});
+        nwr["shop"="medical"](around:${radius},${lat},${lng});
+      `;
+    } else if (type === "doctor") {
+      overpassSubQuery = `
+        nwr["amenity"="doctors"](around:${radius},${lat},${lng});
+        nwr["healthcare"="doctor"](around:${radius},${lat},${lng});
+      `;
+    }
+
     const query = `
       [out:json][timeout:25];
       (
-        node["amenity"="${cfg.query}"](around:${radius},${lat},${lng});
-        way["amenity"="${cfg.query}"](around:${radius},${lat},${lng});
-        node["healthcare"="hospital"](around:${radius},${lat},${lng});
-        node["shop"="chemist"](around:${radius},${lat},${lng});
+        ${overpassSubQuery}
       );
       out body center 30;
     `;
@@ -136,7 +160,7 @@ export default function NearbyPage() {
     // Fallback simpler query if complex one fails
     const simpleQuery = `
       [out:json][timeout:25];
-      nwr["amenity"~"hospital|clinic|pharmacy|doctors"](around:${radius},${lat},${lng});
+      nwr["amenity"~"hospital|clinic|pharmacy|doctors|medical_centre"](around:${radius},${lat},${lng});
       out center 30;
     `;
 
