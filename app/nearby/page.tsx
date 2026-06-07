@@ -164,26 +164,45 @@ export default function NearbyPage() {
       out center 30;
     `;
 
-    try {
-      let data: any = null;
+    const OVERPASS_ENDPOINTS = [
+      "https://overpass-api.de/api/interpreter",
+      "https://lz4.overpass-api.de/api/interpreter",
+      "https://z.overpass-api.de/api/interpreter",
+      "https://overpass.kumi.systems/api/interpreter",
+    ];
 
-      // Try primary query
-      const res = await fetch("https://overpass-api.de/api/interpreter", {
-        method: "POST",
-        body: "data=" + encodeURIComponent(query),
-      });
+    const fetchFromOverpass = async (queryText: string) => {
+      for (const endpoint of OVERPASS_ENDPOINTS) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 7000); // 7 second timeout per mirror
 
-      if (res.ok) {
-        data = await res.json();
+          const res = await fetch(endpoint, {
+            method: "POST",
+            body: "data=" + encodeURIComponent(queryText),
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.elements && data.elements.length > 0) {
+              return data;
+            }
+          }
+        } catch (e) {
+          console.warn(`Failed to fetch from ${endpoint}:`, e);
+        }
       }
+      return null;
+    };
+
+    try {
+      let data = await fetchFromOverpass(query);
 
       // If no results, try simpler query
       if (!data || !data.elements || data.elements.length === 0) {
-        const res2 = await fetch("https://overpass-api.de/api/interpreter", {
-          method: "POST",
-          body: "data=" + encodeURIComponent(simpleQuery),
-        });
-        if (res2.ok) data = await res2.json();
+        data = await fetchFromOverpass(simpleQuery);
       }
 
       const elements = (data?.elements || []).map((el: any) => {
