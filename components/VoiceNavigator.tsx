@@ -61,7 +61,7 @@ export default function VoiceNavigator() {
       window.location.href = "/symptoms";
     } else if (command.includes("plan") || command.includes("diet") || command.includes("food") || command.includes("workout") || command.includes("meal")) {
       window.location.href = "/plan";
-    } else if (command.includes("chat") || command.includes("talk") || command.includes("companion") || command.includes("cure me") || command.includes("cureme")) {
+    } else if (command.includes("chat") || command.includes("talk") || command.includes("companion") || command.includes("medi bud") || command.includes("medibud")) {
       window.location.href = "/chat";
     } else if (command.includes("home") || command.includes("start")) {
       window.location.href = "/";

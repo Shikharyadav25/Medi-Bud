@@ -47,7 +47,7 @@ export default function PlannerPage() {
     const bmi = profile.heightCm && profile.weightKg
       ? (parseFloat(profile.weightKg) / Math.pow(parseFloat(profile.heightCm) / 100, 2)).toFixed(1)
       : "Unknown";
-    const prompt = `You are CureMe AI. Act as an expert nutritionist and physical trainer for an Indian consumer. 
+    const prompt = `You are Medi Bud AI. Act as an expert nutritionist and physical trainer for an Indian consumer. 
 Generate a comprehensive 7-DAY Indian meal and workout plan for a ${profile.age || "unknown"}-year-old ${profile.gender || "person"}.
 BMI: ${bmi}. 
 Active Conditions: ${profile.healthIssues || "None"}. 

@@ -23,9 +23,9 @@ export default function Navbar() {
   ];
 
   useEffect(() => {
-    const savedLang = localStorage.getItem("cureme_lang");
+    const savedLang = localStorage.getItem("medibud_lang");
     if (savedLang) setLanguage(savedLang);
-    const savedTheme = localStorage.getItem("cureme_theme");
+    const savedTheme = localStorage.getItem("medibud_theme");
     if (savedTheme) {
       setTheme(savedTheme);
       if (savedTheme === "light") document.documentElement.classList.add("light-theme");
@@ -35,7 +35,7 @@ export default function Navbar() {
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
-    localStorage.setItem("cureme_theme", newTheme);
+    localStorage.setItem("medibud_theme", newTheme);
     if (newTheme === "light") document.documentElement.classList.add("light-theme");
     else document.documentElement.classList.remove("light-theme");
   };
@@ -43,7 +43,7 @@ export default function Navbar() {
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLang = e.target.value;
     setLanguage(newLang);
-    localStorage.setItem("cureme_lang", newLang);
+    localStorage.setItem("medibud_lang", newLang);
     // Optionally trigger a custom event if other components need immediate re-render, 
     // or they can just check localStorage on mount.
     window.dispatchEvent(new Event("languageChange"));
@@ -177,11 +177,11 @@ export default function Navbar() {
       `}</style>
       
       <nav className="gnav-root">
-        <a className="gnav-logo" href="/" aria-label="Go to CureMe Home">
+        <a className="gnav-logo" href="/" aria-label="Go to Medi Bud Home">
           <div className="gnav-logo-icon">
             <Stethoscope size={20} color="#fff" strokeWidth={2.5} />
           </div>
-          CureMe AI
+          Medi Bud AI
         </a>
 
         <ul className="gnav-center">

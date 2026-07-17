@@ -183,7 +183,7 @@ export default function SymptomsPage() {
       ? (parseFloat(profile.weightKg) / Math.pow(parseFloat(profile.heightCm) / 100, 2)).toFixed(1)
       : "not calculated";
 
-    const prompt = `You are CureMe, an expert AI medical triage assistant attuned to Indian healthcare realities. Analyse the symptoms and suggest practical, accessible remedies (e.g. ORS, Haldi, steam inhalation) alongside standard medical triage, especially for 'self-care' or 'monitor' urgencies. Return a structured response.
+    const prompt = `You are Medi Bud, an expert AI medical triage assistant attuned to Indian healthcare realities. Analyse the symptoms and suggest practical, accessible remedies (e.g. ORS, Haldi, steam inhalation) alongside standard medical triage, especially for 'self-care' or 'monitor' urgencies. Return a structured response.
 
 PATIENT PROFILE:
 - Age: ${profile?.age || "not specified"}
@@ -258,7 +258,7 @@ setResult(parseResult(raw));
 
   return (
     <>
-      <title>CureMe AI — Symptom Checker</title>
+      <title>Medi Bud AI — Symptom Checker</title>
         <link
       href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap"
       rel="stylesheet"

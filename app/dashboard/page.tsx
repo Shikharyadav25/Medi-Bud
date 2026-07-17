@@ -296,7 +296,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <title>CureMe AI — Health Dashboard</title>
+      <title>Medi Bud AI — Health Dashboard</title>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -554,7 +554,7 @@ export default function DashboardPage() {
               <div className="dash-card-label" style={{ marginTop: 20 }}>Quick Actions</div>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <a href="/chat" className="edit-btn" style={{ marginTop: 0 }}>
-  <MessageCircle size={14} strokeWidth={1.5} /> Ask CureMe
+  <MessageCircle size={14} strokeWidth={1.5} /> Ask Medi Bud
 </a>
 <a href="/survey" className="edit-btn" style={{ marginTop: 0 }}>
   <UserIcon size={14} strokeWidth={1.5} /> Edit Profile

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "CureMe AI",
+  title: "Medi Bud AI",
   description: "Your AI-powered health companion",
   icons: {
     icon: "/stethoscope.svg",

@@ -14,16 +14,16 @@ export default function LandingPage() {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setAuthReady(true);
-      if (u && sessionStorage.getItem("cureme_just_authed")) {
-        const isNew = sessionStorage.getItem("cureme_is_new") === "true";
+      if (u && sessionStorage.getItem("medibud_just_authed")) {
+        const isNew = sessionStorage.getItem("medibud_is_new") === "true";
         setToast({
           type: "success",
           message: isNew
-            ? `Welcome to CureMe, ${u.displayName || u.email}!`
+            ? `Welcome to Medi Bud, ${u.displayName || u.email}!`
             : `Welcome back, ${u.displayName?.split(" ")[0] || u.email?.split("@")[0]}!`,
         });
-        sessionStorage.removeItem("cureme_just_authed");
-        sessionStorage.removeItem("cureme_is_new");
+        sessionStorage.removeItem("medibud_just_authed");
+        sessionStorage.removeItem("medibud_is_new");
         setTimeout(() => setToast(null), 4000);
       }
     });
@@ -73,7 +73,7 @@ export default function LandingPage() {
 
   return (
     <>
-      <title>{`CureMe AI — Your AI Health Companion`}</title>
+      <title>{`Medi Bud AI — Your AI Health Companion`}</title>
       <style>{`
   :root {
     --ink: #06060e; --surface: #0d0d1a; --surface2: #13121f;
@@ -357,7 +357,7 @@ export default function LandingPage() {
         <div className="hero-visual">
           <div className="hero-visual-bar">
             <div className="hv-dot" /><div className="hv-dot" /><div className="hv-dot" />
-            <span className="hv-label">CureMe AI — Health Chat</span>
+            <span className="hv-label">Medi Bud AI — Health Chat</span>
           </div>
           <div className="hero-visual-chat">
             <div className="hv-msg user"><div className="hv-avatar user" aria-hidden="true">
@@ -400,7 +400,7 @@ export default function LandingPage() {
           <div className="feature-card reveal">
             <div className="feature-icon rose"><Mic size={22} strokeWidth={1.5} color="#e879a0" /></div>
             <h3 className="feature-title">Voice &amp; Image Intelligence</h3>
-            <p className="feature-desc">Say your symptoms out loud or upload a photo of your meal. CureMe's AI instantly identifies the dish, estimates macros, and dictates if it suits your allergies.</p>
+            <p className="feature-desc">Say your symptoms out loud or upload a photo of your meal. Medi Bud's AI instantly identifies the dish, estimates macros, and dictates if it suits your allergies.</p>
           </div>
           <div className="feature-card reveal">
             <div className="feature-icon green"><Calendar size={22} strokeWidth={1.5} color="#4ade80" /></div>
@@ -446,7 +446,7 @@ export default function LandingPage() {
           <div className="how-step reveal">
             <div className="how-step-num">02</div>
             <h3 className="how-step-title">Ask, speak, or snap</h3>
-            <p className="how-step-desc">Type your question, use hands-free voice commands in Indian English, or upload a food photo. CureMe understands all three.</p>
+            <p className="how-step-desc">Type your question, use hands-free voice commands in Indian English, or upload a food photo. Medi Bud understands all three.</p>
           </div>
           <div className="how-step reveal">
             <div className="how-step-num">03</div>
@@ -483,12 +483,12 @@ export default function LandingPage() {
         <div className="cta-card reveal">
           <h2>Your health deserves<br /><em>personal</em> answers.</h2>
           <p>{user ? "Pick up right where you left off." : "Set up your health profile in 2 minutes. Free forever."}</p>
-          <a href="./chat" className="btn-primary">Open CureMe AI →</a>
+          <a href="./chat" className="btn-primary">Open Medi Bud AI →</a>
         </div>
       </section>
 
       <footer>
-        <div className="footer-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Stethoscope size={16} /> CureMe AI</div>
+        <div className="footer-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Stethoscope size={16} /> Medi Bud AI</div>
         <p className="footer-note">For informational purposes only · Not a substitute for professional medical advice</p>
         <div className="footer-links">
           <a href="#features">Features</a>

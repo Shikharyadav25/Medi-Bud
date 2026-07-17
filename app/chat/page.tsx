@@ -129,7 +129,7 @@ export default function ChatPage() {
 
   // ── Language sync
   useEffect(() => {
-    const handle = () => setLanguage(localStorage.getItem("cureme_lang") || "en");
+    const handle = () => setLanguage(localStorage.getItem("medibud_lang") || "en");
     handle();
     window.addEventListener("languageChange", handle);
     return () => window.removeEventListener("languageChange", handle);
@@ -273,7 +273,7 @@ export default function ChatPage() {
       ? (parseFloat(profile.weightKg) / Math.pow(parseFloat(profile.heightCm) / 100, 2)).toFixed(1)
       : "N/A";
 
-    const prompt = `You are CureMe, an expert AI family doctor and health companion for Indian consumers. You are warm, culturally attuned, and practical.
+    const prompt = `You are Medi Bud, an expert AI family doctor and health companion for Indian consumers. You are warm, culturally attuned, and practical.
 
 USER PROFILE (deeply reference these in your response):
 - Name: ${user?.displayName || "there"}, Age: ${profile?.age || "N/A"}, Gender: ${profile?.gender || "N/A"}
@@ -986,7 +986,7 @@ The user has also uploaded a food image. Please carefully analyze it:
               </button>
             )}
             <span className="topbar-title">
-              {currentConvId ? (conversations.find(c => c.id === currentConvId)?.title || "Chat") : "CureMe AI"}
+              {currentConvId ? (conversations.find(c => c.id === currentConvId)?.title || "Chat") : "Medi Bud AI"}
             </span>
             <div className="topbar-badge">
               <div className="status-dot" />

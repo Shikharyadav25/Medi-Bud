@@ -42,8 +42,8 @@ export default function LoginPage() {
 
     // ── Redirect helper (called ONLY after a successful login action) ──────────
     const redirectAfterAuth = async (isNew = false) => {
-        sessionStorage.setItem("cureme_just_authed", "true");
-        sessionStorage.setItem("cureme_is_new", String(isNew));
+        sessionStorage.setItem("medibud_just_authed", "true");
+        sessionStorage.setItem("medibud_is_new", String(isNew));
 
         if (isNew) {
             // Check if they already filled the survey before
@@ -115,7 +115,7 @@ export default function LoginPage() {
 
     return (
         <>
-            <title>CureMe AI — {mode === "login" ? "Sign In" : "Create Account"}</title>
+            <title>Medi Bud AI — {mode === "login" ? "Sign In" : "Create Account"}</title>
             <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Space+Mono&display=swap');
 
@@ -233,12 +233,12 @@ export default function LoginPage() {
                     </div>
 
                     <h1 className="card-title">
-                        {mode === "login" ? <>Sign in to <em>CureMe</em></> : <>Create your <em>account</em></>}
+                        {mode === "login" ? <>Sign in to <em>Medi Bud</em></> : <>Create your <em>account</em></>}
                     </h1>
                     <p className="card-sub">
                         {mode === "login"
                             ? "Continue your health journey where you left off."
-                            : "Join CureMe AI — your personalised health companion."}
+                            : "Join Medi Bud AI — your personalised health companion."}
                     </p>
 
                     {/* Google sign-in */}
@@ -307,7 +307,7 @@ export default function LoginPage() {
             </main>
 
             <footer>
-                <span className="footer-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Stethoscope size={16} /> CureMe AI</span>
+                <span className="footer-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Stethoscope size={16} /> Medi Bud AI</span>
                 <p className="footer-note">For informational purposes only · Not a substitute for professional medical advice</p>
             </footer>
         </>

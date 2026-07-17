@@ -1,8 +1,8 @@
-# CureMe AI — Your Intelligent Indian Health Companion
+# Medi Bud AI — Your Intelligent Indian Health Companion
 
 > **For informational purposes only. Not a substitute for professional medical advice.**
 
-CureMe AI is a personalised health companion built for the average Indian consumer. Powered by **Google Gemini 2.5 Flash**, it delivers context-aware, culturally grounded health guidance — adapting every response to your unique medical profile, dietary preferences, and lifestyle.
+Medi Bud AI is a personalised health companion built for the average Indian consumer. Powered by **Google Gemini 2.5 Flash**, it delivers context-aware, culturally grounded health guidance — adapting every response to your unique medical profile, dietary preferences, and lifestyle.
 
 ---
 
@@ -76,7 +76,7 @@ CureMe AI is a personalised health companion built for the average Indian consum
 ## Project Structure
 
 ```
-cureme/
+Medi-Bud/
 ├── app/
 │   ├── page.tsx          # Landing page (features, how-it-works)
 │   ├── layout.tsx        # Root layout + VoiceNavigator
@@ -131,4 +131,4 @@ NEXT_PUBLIC_FIREBASE_APP_ID=...
 
 ## Health Disclaimer
 
-CureMe AI is designed to **supplement**, not replace, professional medical care. All responses are for informational purposes only. Always consult a qualified healthcare provider for diagnosis and treatment.
+Medi Bud AI is designed to **supplement**, not replace, professional medical care. All responses are for informational purposes only. Always consult a qualified healthcare provider for diagnosis and treatment.
