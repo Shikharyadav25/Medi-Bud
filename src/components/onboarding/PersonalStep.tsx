@@ -1,5 +1,14 @@
 import React from "react";
-import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  Keyboard,
+  TouchableWithoutFeedback,
+  ScrollView,
+} from "react-native";
 import { colors, spacing, radii, typography, accessibility } from "@/theme/tokens";
 
 interface PersonalStepProps {
@@ -21,87 +30,111 @@ export function PersonalStep({
 }: PersonalStepProps) {
   const isValid = age.trim().length > 0 && parseInt(age, 10) > 0 && gender.length > 0;
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>About You</Text>
-        <Text style={styles.subtitle}>
-          Your age and biological sex calibrate vital baselines, dosage safety, and triage rules.
-        </Text>
-      </View>
+  const handleAgeChange = (value: string) => {
+    onAgeChange(value);
+    // Dismiss keyboard when 2 digits entered and gender is already chosen
+    if (value.length >= 2 && gender.length > 0) {
+      Keyboard.dismiss();
+    }
+  };
 
-      {/* Inset Grouped Section for Personal Details */}
-      <View style={styles.groupedCard}>
-        <View style={styles.inputRow}>
-          <Text style={styles.rowLabel}>Age</Text>
-          <TextInput
-            style={styles.textInput}
-            keyboardType="number-pad"
-            placeholder="Required"
-            placeholderTextColor={colors.textMuted}
-            value={age}
-            onChangeText={onAgeChange}
-            maxLength={3}
-            accessibilityLabel="Age in years"
-          />
+  const handleGenderSelect = (option: string) => {
+    // Dismiss keyboard immediately when selecting gender
+    Keyboard.dismiss();
+    onGenderChange(option);
+  };
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>About You</Text>
+          <Text style={styles.subtitle}>
+            Your age and biological sex calibrate vital baselines, dosage safety, and triage rules.
+          </Text>
         </View>
 
-        <View style={styles.rowDivider} />
+        {/* Inset Grouped Section */}
+        <View style={styles.groupedCard}>
+          <View style={styles.inputRow}>
+            <Text style={styles.rowLabel}>Age</Text>
+            <TextInput
+              style={styles.textInput}
+              keyboardType="number-pad"
+              returnKeyType="done"
+              placeholder="Required"
+              placeholderTextColor={colors.textMuted}
+              value={age}
+              onChangeText={handleAgeChange}
+              onSubmitEditing={Keyboard.dismiss}
+              maxLength={3}
+              accessibilityLabel="Age in years"
+            />
+          </View>
 
-        <View style={styles.segmentRow}>
-          <Text style={styles.rowLabel}>Sex</Text>
-          <View style={styles.segmentContainer}>
-            {GENDER_OPTIONS.map((option) => {
-              const isSelected = gender === option;
-              return (
-                <Pressable
-                  key={option}
-                  style={[
-                    styles.segmentButton,
-                    isSelected && styles.segmentButtonSelected,
-                  ]}
-                  onPress={() => onGenderChange(option)}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Select ${option}`}
-                  accessibilityState={{ selected: isSelected }}
-                >
-                  <Text
+          <View style={styles.rowDivider} />
+
+          <View style={styles.segmentRow}>
+            <Text style={styles.rowLabel}>Sex</Text>
+            <View style={styles.segmentContainer}>
+              {GENDER_OPTIONS.map((option) => {
+                const isSelected = gender === option;
+                return (
+                  <Pressable
+                    key={option}
                     style={[
-                      styles.segmentText,
-                      isSelected && styles.segmentTextSelected,
+                      styles.segmentButton,
+                      isSelected && styles.segmentButtonSelected,
                     ]}
+                    onPress={() => handleGenderSelect(option)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Select ${option}`}
+                    accessibilityState={{ selected: isSelected }}
                   >
-                    {option}
-                  </Text>
-                </Pressable>
-              );
-            })}
+                    <Text
+                      style={[
+                        styles.segmentText,
+                        isSelected && styles.segmentTextSelected,
+                      ]}
+                    >
+                      {option}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* Pinned Action Button */}
-      <Pressable
-        style={({ pressed }) => [
-          styles.continueButton,
-          !isValid && styles.continueButtonDisabled,
-          pressed && isValid && styles.buttonPressed,
-        ]}
-        disabled={!isValid}
-        onPress={onNext}
-        accessibilityRole="button"
-        accessibilityLabel="Continue to Body Metrics"
-      >
-        <Text style={styles.continueButtonText}>Continue</Text>
-      </Pressable>
-    </View>
+        {/* Continue Button */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.continueButton,
+            !isValid && styles.continueButtonDisabled,
+            pressed && isValid && styles.buttonPressed,
+          ]}
+          disabled={!isValid}
+          onPress={() => {
+            Keyboard.dismiss();
+            onNext();
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Continue to Body Metrics"
+        >
+          <Text style={styles.continueButtonText}>Continue</Text>
+        </Pressable>
+      </ScrollView>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "space-between",
+  scrollContent: {
+    paddingBottom: spacing.huge,
   },
   header: {
     marginBottom: spacing.xl,
@@ -129,7 +162,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: spacing.lg,
-    minHeight: accessibility.minTouchTarget + 6, // 50pt
+    minHeight: accessibility.minTouchTarget + 6,
   },
   rowLabel: {
     ...typography.body,
@@ -193,7 +226,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: spacing.xl,
+    marginTop: spacing.sm,
   },
   continueButtonDisabled: {
     opacity: 0.35,

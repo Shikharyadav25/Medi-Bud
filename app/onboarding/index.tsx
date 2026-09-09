@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, StyleSheet, SafeAreaView } from "react-native";
+import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { colors, spacing } from "@/theme/tokens";
 import { StepIndicator } from "@/components/onboarding/StepIndicator";
@@ -50,48 +51,54 @@ export default function OnboardingScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <StepIndicator
-          currentStep={step}
-          totalSteps={STEP_LABELS.length}
-          stepLabels={STEP_LABELS}
-        />
-
-        {step === 0 && (
-          <PersonalStep
-            age={age}
-            gender={gender}
-            onAgeChange={setAge}
-            onGenderChange={setGender}
-            onNext={() => setStep(1)}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoid}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
+      >
+        <View style={styles.container}>
+          <StepIndicator
+            currentStep={step}
+            totalSteps={STEP_LABELS.length}
+            stepLabels={STEP_LABELS}
           />
-        )}
 
-        {step === 1 && (
-          <BodyStep
-            heightCm={heightCm}
-            weightKg={weightKg}
-            onHeightChange={setHeightCm}
-            onWeightChange={setWeightKg}
-            onBack={() => setStep(0)}
-            onNext={() => setStep(2)}
-          />
-        )}
+          {step === 0 && (
+            <PersonalStep
+              age={age}
+              gender={gender}
+              onAgeChange={setAge}
+              onGenderChange={setGender}
+              onNext={() => setStep(1)}
+            />
+          )}
 
-        {step === 2 && (
-          <HealthStep
-            healthIssues={healthIssues}
-            medications={medications}
-            allergies={allergies}
-            isSaving={isSaving}
-            onHealthIssuesChange={setHealthIssues}
-            onMedicationsChange={setMedications}
-            onAllergiesChange={setAllergies}
-            onBack={() => setStep(1)}
-            onSubmit={handleSubmit}
-          />
-        )}
-      </View>
+          {step === 1 && (
+            <BodyStep
+              heightCm={heightCm}
+              weightKg={weightKg}
+              onHeightChange={setHeightCm}
+              onWeightChange={setWeightKg}
+              onBack={() => setStep(0)}
+              onNext={() => setStep(2)}
+            />
+          )}
+
+          {step === 2 && (
+            <HealthStep
+              healthIssues={healthIssues}
+              medications={medications}
+              allergies={allergies}
+              isSaving={isSaving}
+              onHealthIssuesChange={setHealthIssues}
+              onMedicationsChange={setMedications}
+              onAllergiesChange={setAllergies}
+              onBack={() => setStep(1)}
+              onSubmit={handleSubmit}
+            />
+          )}
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -101,10 +108,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  keyboardAvoid: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
     maxWidth: 500,
     width: "100%",
     alignSelf: "center",

@@ -1,5 +1,14 @@
 import React from "react";
-import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  Keyboard,
+  TouchableWithoutFeedback,
+  ScrollView,
+} from "react-native";
 import { colors, spacing, radii, typography, accessibility } from "@/theme/tokens";
 import { calculateBMI } from "@/lib/bmi";
 
@@ -27,112 +36,127 @@ export function BodyStep({
   const isValid = heightNum >= 50 && weightNum >= 20;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Body Metrics</Text>
-        <Text style={styles.subtitle}>
-          Height and weight determine your BMI, used to adjust diet plans and identify health risks.
-        </Text>
-      </View>
-
-      {/* Inset Grouped Table */}
-      <View style={styles.groupedCard}>
-        <View style={styles.inputRow}>
-          <Text style={styles.rowLabel}>Height</Text>
-          <View style={styles.inputWithUnit}>
-            <TextInput
-              style={styles.textInput}
-              keyboardType="numeric"
-              placeholder="0"
-              placeholderTextColor={colors.textMuted}
-              value={heightCm}
-              onChangeText={onHeightChange}
-              maxLength={3}
-              accessibilityLabel="Height in centimeters"
-            />
-            <Text style={styles.unitText}>cm</Text>
-          </View>
-        </View>
-
-        <View style={styles.rowDivider} />
-
-        <View style={styles.inputRow}>
-          <Text style={styles.rowLabel}>Weight</Text>
-          <View style={styles.inputWithUnit}>
-            <TextInput
-              style={styles.textInput}
-              keyboardType="numeric"
-              placeholder="0"
-              placeholderTextColor={colors.textMuted}
-              value={weightKg}
-              onChangeText={onWeightChange}
-              maxLength={3}
-              accessibilityLabel="Weight in kilograms"
-            />
-            <Text style={styles.unitText}>kg</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Apple Health Style BMI Card */}
-      {bmiResult && (
-        <View style={styles.bmiCard}>
-          <View style={styles.bmiTopRow}>
-            <Text style={styles.bmiCardTitle}>Calculated BMI</Text>
-            <View
-              style={[
-                styles.categoryPill,
-                bmiResult.isNormal ? styles.pillNormal : styles.pillWarning,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.categoryText,
-                  bmiResult.isNormal ? styles.pillNormalText : styles.pillWarningText,
-                ]}
-              >
-                {bmiResult.category}
-              </Text>
-            </View>
-          </View>
-          <Text style={styles.bmiMetric}>{bmiResult.formatted}</Text>
-          <Text style={styles.bmiFootnote}>
-            {bmiResult.isNormal
-              ? "Your BMI is within the standard healthy range (18.5 – 24.9)."
-              : `Classified as ${bmiResult.category.toLowerCase()}. Useful for dietary planning.`}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>Body Metrics</Text>
+          <Text style={styles.subtitle}>
+            Height and weight determine your BMI, used to adjust diet plans and identify health risks.
           </Text>
         </View>
-      )}
 
-      {/* Button Row */}
-      <View style={styles.buttonRow}>
-        <Pressable
-          style={styles.backButton}
-          onPress={onBack}
-          accessibilityRole="button"
-          accessibilityLabel="Back to Personal Details"
-        >
-          <Text style={styles.backButtonText}>Back</Text>
-        </Pressable>
+        {/* Inset Grouped Table */}
+        <View style={styles.groupedCard}>
+          <View style={styles.inputRow}>
+            <Text style={styles.rowLabel}>Height</Text>
+            <View style={styles.inputWithUnit}>
+              <TextInput
+                style={styles.textInput}
+                keyboardType="numeric"
+                returnKeyType="done"
+                placeholder="0"
+                placeholderTextColor={colors.textMuted}
+                value={heightCm}
+                onChangeText={onHeightChange}
+                onSubmitEditing={Keyboard.dismiss}
+                maxLength={3}
+                accessibilityLabel="Height in centimeters"
+              />
+              <Text style={styles.unitText}>cm</Text>
+            </View>
+          </View>
 
-        <Pressable
-          style={[styles.nextButton, !isValid && styles.nextButtonDisabled]}
-          disabled={!isValid}
-          onPress={onNext}
-          accessibilityRole="button"
-          accessibilityLabel="Continue to Health Conditions"
-        >
-          <Text style={styles.nextButtonText}>Continue</Text>
-        </Pressable>
-      </View>
-    </View>
+          <View style={styles.rowDivider} />
+
+          <View style={styles.inputRow}>
+            <Text style={styles.rowLabel}>Weight</Text>
+            <View style={styles.inputWithUnit}>
+              <TextInput
+                style={styles.textInput}
+                keyboardType="numeric"
+                returnKeyType="done"
+                placeholder="0"
+                placeholderTextColor={colors.textMuted}
+                value={weightKg}
+                onChangeText={onWeightChange}
+                onSubmitEditing={Keyboard.dismiss}
+                maxLength={3}
+                accessibilityLabel="Weight in kilograms"
+              />
+              <Text style={styles.unitText}>kg</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Apple Health Style BMI Card */}
+        {bmiResult && (
+          <View style={styles.bmiCard}>
+            <View style={styles.bmiTopRow}>
+              <Text style={styles.bmiCardTitle}>Calculated BMI</Text>
+              <View
+                style={[
+                  styles.categoryPill,
+                  bmiResult.isNormal ? styles.pillNormal : styles.pillWarning,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.categoryText,
+                    bmiResult.isNormal ? styles.pillNormalText : styles.pillWarningText,
+                  ]}
+                >
+                  {bmiResult.category}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.bmiMetric}>{bmiResult.formatted}</Text>
+            <Text style={styles.bmiFootnote}>
+              {bmiResult.isNormal
+                ? "Your BMI is within the standard healthy range (18.5 – 24.9)."
+                : `Classified as ${bmiResult.category.toLowerCase()}. Useful for dietary planning.`}
+            </Text>
+          </View>
+        )}
+
+        {/* Button Row */}
+        <View style={styles.buttonRow}>
+          <Pressable
+            style={styles.backButton}
+            onPress={() => {
+              Keyboard.dismiss();
+              onBack();
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Back to Personal Details"
+          >
+            <Text style={styles.backButtonText}>Back</Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.nextButton, !isValid && styles.nextButtonDisabled]}
+            disabled={!isValid}
+            onPress={() => {
+              Keyboard.dismiss();
+              onNext();
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Continue to Health Conditions"
+          >
+            <Text style={styles.nextButtonText}>Continue</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "space-between",
+  scrollContent: {
+    paddingBottom: spacing.huge,
   },
   header: {
     marginBottom: spacing.xl,
@@ -246,7 +270,7 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: "row",
     gap: spacing.md,
-    marginBottom: spacing.xl,
+    marginTop: spacing.sm,
   },
   backButton: {
     flex: 1,
