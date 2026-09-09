@@ -1,0 +1,7 @@
+{"_e":"root:init","_t":1788965446417,"format":"v0-jsonl","version":"57.0.23"}
+{"_e":"env:mode","_t":1788965446418,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1788965446420,"mode":"development","files":["../../../.env.local"],"env":{"NEXT_PUBLIC_FIREBASE_API_KEY":"your_firebase_api_key","NEXT_PUBLIC_FIREBASE_APP_ID":"your_app_id","NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN":"your_project.firebaseapp.com","NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID":"your_measurement_id","NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID":"your_sender_id","NEXT_PUBLIC_FIREBASE_PROJECT_ID":"your_project_id","NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET":"your_project.appspot.com","NEXT_PUBLIC_GEMINI_API_KEY":"your_gemini_api_key"}}
+{"_e":"devserver:start","_t":1788965446734,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../../../app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1788965447000,"serverRoot":"../../..","projectRoot":"../../..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1788965447182,"plugins":[{"packageName":"expo-sqlite","bannerTitle":"expo-sqlite","cliBanner":false,"webpageEndpoint":"/_expo/plugins/expo-sqlite"}]}
+{"_e":"metro:instantiate","_t":1788965447595,"atlas":false,"workers":6,"host":"::","port":8081}

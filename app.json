@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Medi Bud",
+    "slug": "medi-bud",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "medibud",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.medibud.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#080811",
+        "foregroundImage": "./assets/android-icon-foreground.png"
+      },
+      "package": "com.medibud.app"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-notifications"
+    ]
+  }
+}
