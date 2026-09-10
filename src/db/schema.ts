@@ -25,7 +25,32 @@ export const syncOutbox = sqliteTable("sync_outbox", {
   updatedAt: integer("updated_at").notNull(),
 });
 
+export const conversations = sqliteTable("conversations", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  createdAt: integer("created_at").notNull(),
+  updatedAt: integer("updated_at").notNull(),
+});
+
+export const chatMessages = sqliteTable("chat_messages", {
+  id: text("id").primaryKey(),
+  conversationId: text("conversation_id").notNull(),
+  role: text("role").notNull(),
+  content: text("content").notNull(),
+  cardsJson: text("cards_json"),
+  interactiveJson: text("interactive_json"),
+  imageUri: text("image_uri"),
+  source: text("source").notNull().default("cloud"),
+  isOffline: integer("is_offline").notNull().default(0),
+  createdAt: integer("created_at").notNull(),
+});
+
 export type ProfileRecord = typeof profiles.$inferSelect;
 export type InsertProfileRecord = typeof profiles.$inferInsert;
 export type OutboxRecord = typeof syncOutbox.$inferSelect;
 export type InsertOutboxRecord = typeof syncOutbox.$inferInsert;
+export type ConversationRecord = typeof conversations.$inferSelect;
+export type InsertConversationRecord = typeof conversations.$inferInsert;
+export type ChatMessageRecord = typeof chatMessages.$inferSelect;
+export type InsertChatMessageRecord = typeof chatMessages.$inferInsert;
+

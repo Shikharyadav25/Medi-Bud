@@ -1,12 +1,38 @@
-import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Pressable, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { colors, spacing, radii, typography, accessibility } from "@/theme/tokens";
+import { colors, spacing, radii, typography } from "@/theme/tokens";
 import { Stethoscope, ShieldCheck, HeartPulse } from "lucide-react-native";
+import { fetchLocalProfile } from "@/db/client";
+import { useProfileStore } from "@/store/useProfileStore";
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const { loadProfile } = useProfileStore();
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    try {
+      const existing = fetchLocalProfile("local_user_default");
+      if (existing && existing.age && existing.gender) {
+        loadProfile("local_user_default");
+        router.replace("/(tabs)");
+        return;
+      }
+    } catch {
+      // Local database initializing
+    }
+    setIsChecking(false);
+  }, [loadProfile, router]);
+
+  if (isChecking) {
+    return (
+      <SafeAreaView style={[styles.safeArea, styles.loadingCenter]}>
+        <ActivityIndicator size="small" color={colors.textPrimary} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -84,6 +110,10 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  loadingCenter: {
+    alignItems: "center",
+    justifyContent: "center",
   },
   container: {
     flex: 1,

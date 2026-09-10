@@ -49,7 +49,7 @@ Medi-Bud/
 │   │   ├── _layout.tsx         # Clean light tab bar with Lucide icons
 │   │   ├── index.tsx           # Daily Health Dashboard ("Summary")
 │   │   ├── triage.tsx          # Offline-first Symptom Checker (Phase 2)
-│   │   ├── chat.tsx            # Profile-aware AI Doctor Consultation (Phase 3)
+│   │   ├── chat.tsx            # Hybrid Profile-Aware AI Doctor & Offline Triage
 │   │   ├── reminders.tsx       # Medication & check-in alarms (Phase 4)
 │   │   └── profile.tsx         # User baseline & editable health metrics
 │   ├── onboarding/
@@ -57,27 +57,42 @@ Medi-Bud/
 │   ├── _layout.tsx             # Root Stack layout and status bar
 │   └── index.tsx               # Welcome / entry screen
 ├── src/
+│   ├── chat/                   # Hybrid AI & offline medical intelligence
+│   │   ├── chatEngine.ts       # Unified router (Cloud LLM vs offline fallbacks)
+│   │   ├── types.ts            # Chat, card, intent, and decision tree types
+│   │   └── offline/            # Offline triage & first-aid stack
+│   │       ├── intentMatcher.ts       # Fast keyword/regex intent scorer (50+ intents)
+│   │       ├── intentData.ts          # Emergency & first-aid checklists & red flags
+│   │       ├── decisionTreeEngine.ts  # State machine for diagnostic flowcharts
+│   │       ├── decisionTreesData.ts   # Interactive triage trees (Chest pain, fever, etc.)
+│   │       ├── manualSearchEngine.ts  # Zero-dependency token search engine
+│   │       └── medicalManualData.ts   # Curated medical manual guides & remedies
 │   ├── components/             # Reusable UI primitives & compound components
+│   │   ├── chat/               # ChatHeader, MessageItem, CardSection, InteractiveOptions, InputBar
 │   │   └── onboarding/         # StepIndicator, PersonalStep, BodyStep, HealthStep
 │   ├── db/                     # Local SQLite & Drizzle ORM layer
-│   │   ├── schema.ts           # Drizzle table schemas (profiles, sync_outbox)
-│   │   └── client.ts           # DB bootstrapper & local repositories
+│   │   ├── schema.ts           # Drizzle table schemas (profiles, sync_outbox, conversations, chat_messages)
+│   │   ├── client.ts           # DB bootstrapper & connection manager
+│   │   └── repositories/       # Data access repositories (profile, outbox, chat)
 │   ├── lib/                    # Pure domain logic & TypeScript models
 │   │   ├── bmi.ts              # Pure BMI calculation & categorization
 │   │   └── types.ts            # Central data types (UserProfile, OutboxTask)
 │   ├── store/                  # Zustand state stores
+│   │   ├── useChatStore.ts     # Conversation & message management with offline toggle
 │   │   └── useProfileStore.ts  # Optimistic updates & SQLite persistence
-│   ├── services/               # Background outbox processor & sync
-│   │   ├── outboxService.ts    # Outbox queue processor with retry backoff
+│   ├── services/               # Background services & APIs
+│   │   ├── aiProxyService.ts   # Profile-aware Cloud Gemini proxy
+│   │   ├── networkService.ts   # Network probe & offline mode simulation
+│   │   ├── outboxService.ts    # Outbox queue processor with exponential retry backoff
 │   │   └── profileSync.ts      # Cloud Firestore push adapter
 │   └── theme/                  # Design tokens & typography
 │       └── tokens.ts           # Apple HIG colors, 44pt touch targets, SF scale
-├── __tests__/                  # Unit test suite (Theme, BMI, Outbox, Sync)
-├── docs/                       # Architecture diagrams & migration history
+├── __tests__/                  # Unit test suite (IntentMatcher, DecisionTrees, ManualSearch, ChatEngine, BMI, Theme)
+├── docs/                       # Architecture diagrams & documentation
 │   ├── architecture.md         # System data flow and Mermaid diagrams
-│   └── apple-design-skill/     # Apple HIG design guidelines & rules
-├── firestore.rules             # Production security rules (request.auth.uid scoped)
-└── legacy-web/                 # Archived legacy Next.js web application
+│   ├── design-guidelines.md    # Apple HIG design standards for React Native
+│   └── MIGRATION.md            # Ledger documenting the transition from web to mobile
+└── firestore.rules             # Production security rules (request.auth.uid scoped)
 ```
 
 ---

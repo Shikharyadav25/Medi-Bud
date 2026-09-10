@@ -12,5 +12,5 @@ module.exports = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
-  testPathIgnorePatterns: ["<rootDir>/legacy-web/", "<rootDir>/node_modules/"],
+  testPathIgnorePatterns: ["<rootDir>/node_modules/"],
 };

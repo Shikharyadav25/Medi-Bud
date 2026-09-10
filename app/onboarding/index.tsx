@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -13,19 +13,37 @@ const STEP_LABELS = ["Personal", "Metrics", "Health"];
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const saveProfile = useProfileStore((s) => s.saveProfile);
+  const { profile, loadProfile, saveProfile } = useProfileStore();
 
   const [step, setStep] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Form State
-  const [age, setAge] = useState("");
-  const [gender, setGender] = useState("");
-  const [heightCm, setHeightCm] = useState("");
-  const [weightKg, setWeightKg] = useState("");
-  const [healthIssues, setHealthIssues] = useState("");
-  const [medications, setMedications] = useState("");
-  const [allergies, setAllergies] = useState("");
+  // Form State initialized with any existing profile data
+  const [age, setAge] = useState(profile?.age ? String(profile.age) : "");
+  const [gender, setGender] = useState(profile?.gender || "");
+  const [heightCm, setHeightCm] = useState(profile?.heightCm ? String(profile.heightCm) : "");
+  const [weightKg, setWeightKg] = useState(profile?.weightKg ? String(profile.weightKg) : "");
+  const [healthIssues, setHealthIssues] = useState(profile?.healthIssues || "");
+  const [medications, setMedications] = useState(profile?.medications || "");
+  const [allergies, setAllergies] = useState(profile?.allergies || "");
+
+  useEffect(() => {
+    if (!profile) {
+      loadProfile("local_user_default");
+    }
+  }, [profile, loadProfile]);
+
+  useEffect(() => {
+    if (profile) {
+      if (!age && profile.age) setAge(String(profile.age));
+      if (!gender && profile.gender) setGender(profile.gender);
+      if (!heightCm && profile.heightCm) setHeightCm(String(profile.heightCm));
+      if (!weightKg && profile.weightKg) setWeightKg(String(profile.weightKg));
+      if (!healthIssues && profile.healthIssues) setHealthIssues(profile.healthIssues);
+      if (!medications && profile.medications) setMedications(profile.medications);
+      if (!allergies && profile.allergies) setAllergies(profile.allergies);
+    }
+  }, [profile]);
 
   const handleSubmit = async () => {
     setIsSaving(true);

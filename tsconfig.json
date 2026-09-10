@@ -16,7 +16,6 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules",
-    "legacy-web"
+    "node_modules"
   ]
 }

@@ -157,3 +157,54 @@
 {"_e":"metro:bundling:progress","_t":1788966576019,"id":"1","progress":0.9400815323379825,"total":3057,"current":2964}
 {"_e":"metro:bundling:progress","_t":1788966576119,"id":"1","progress":0.9400815323379825,"total":3309,"current":3169}
 {"_e":"metro:bundling:done","_t":1788966576268,"id":"1","total":3309,"ms":1380.61325}
+{"_e":"root:init","_t":1789057835523,"format":"v0-jsonl","version":"57.0.23"}
+{"_e":"env:mode","_t":1789057835524,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1789057835526,"mode":"development","files":["../../../.env.local"],"env":{"NEXT_PUBLIC_FIREBASE_API_KEY":"your_firebase_api_key","NEXT_PUBLIC_FIREBASE_APP_ID":"your_app_id","NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN":"your_project.firebaseapp.com","NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID":"your_measurement_id","NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID":"your_sender_id","NEXT_PUBLIC_FIREBASE_PROJECT_ID":"your_project_id","NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET":"your_project.appspot.com","NEXT_PUBLIC_GEMINI_API_KEY":"your_gemini_api_key"}}
+{"_e":"devserver:start","_t":1789057838726,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../../../app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1789057839012,"serverRoot":"../../..","projectRoot":"../../..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1789057839173,"plugins":[{"packageName":"expo-sqlite","bannerTitle":"expo-sqlite","cliBanner":false,"webpageEndpoint":"/_expo/plugins/expo-sqlite"}]}
+{"_e":"metro:instantiate","_t":1789057839659,"atlas":false,"workers":6,"host":"::","port":8082}
+{"_e":"root:init","_t":1789057944731,"format":"v0-jsonl","version":"57.0.23"}
+{"_e":"env:mode","_t":1789057944732,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1789057944734,"mode":"development","files":["../../../.env.local"],"env":{"NEXT_PUBLIC_FIREBASE_API_KEY":"your_firebase_api_key","NEXT_PUBLIC_FIREBASE_APP_ID":"your_app_id","NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN":"your_project.firebaseapp.com","NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID":"your_measurement_id","NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID":"your_sender_id","NEXT_PUBLIC_FIREBASE_PROJECT_ID":"your_project_id","NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET":"your_project.appspot.com","NEXT_PUBLIC_GEMINI_API_KEY":"your_gemini_api_key"}}
+{"_e":"devserver:start","_t":1789057952976,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../../../app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1789057953275,"serverRoot":"../../..","projectRoot":"../../..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1789057953452,"plugins":[{"packageName":"expo-sqlite","bannerTitle":"expo-sqlite","cliBanner":false,"webpageEndpoint":"/_expo/plugins/expo-sqlite"}]}
+{"_e":"metro:instantiate","_t":1789057954050,"atlas":false,"workers":6,"host":"::","port":8082}
+{"_e":"metro:bundling:started","_t":1789057956928,"id":"4","platform":"ios","environment":null,"entry":"node_modules/expo-router/entry.js"}
+{"_e":"metro:bundling:progress","_t":1789057956928,"id":"4","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789057956932,"id":"4","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789057957032,"id":"4","progress":0.05832060715442639,"total":294,"current":71}
+{"_e":"metro:bundling:progress","_t":1789057957132,"id":"4","progress":0.2593291434220747,"total":595,"current":303}
+{"_e":"metro:bundling:progress","_t":1789057957232,"id":"4","progress":0.40247427448259915,"total":837,"current":531}
+{"_e":"metro:bundling:progress","_t":1789057957332,"id":"4","progress":0.6153036847022572,"total":988,"current":775}
+{"_e":"metro:bundling:progress","_t":1789057957472,"id":"4","progress":0.6153036847022572,"total":2838,"current":884}
+{"_e":"metro:bundling:progress","_t":1789057957572,"id":"4","progress":0.6153036847022572,"total":2919,"current":998}
+{"_e":"metro:bundling:progress","_t":1789057957672,"id":"4","progress":0.8542527256898429,"total":2931,"current":2709}
+{"_e":"metro:bundling:progress","_t":1789057957772,"id":"4","progress":0.9593856215245893,"total":3168,"current":3103}
+{"_e":"metro:bundling:done","_t":1789057957934,"id":"4","total":3168,"ms":1005.800084}
+{"_e":"metro:server_log","_t":1789058285173,"level":"error","data":["[timeout] connection terminated with Device for app='%s' on device='%s' after not responding for %s seconds.","host.exp.Exponent","iPhone","60"]}
+{"_e":"metro:bundling:started","_t":1789058489539,"id":"6","platform":"ios","environment":null,"entry":"node_modules/expo-router/entry.js"}
+{"_e":"metro:bundling:progress","_t":1789058489540,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789058489556,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789058489656,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789058489766,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789058490336,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789058490437,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789058490536,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789058490636,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789058490808,"id":"6","total":1,"ms":1268.902958}
+{"_e":"metro:bundling:started","_t":1789058681621,"id":"7","platform":"ios","environment":null,"entry":"node_modules/expo-router/entry.js"}
+{"_e":"metro:bundling:progress","_t":1789058681622,"id":"7","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789058681702,"id":"7","total":1,"ms":80.281792}
+{"_e":"metro:client_log","_t":1789058682039,"level":"warn","data":["No native ExponentConstants module found, are you sure the expo-constants's module is linked properly?"]}
+{"_e":"metro:client_log","_t":1789058682039,"level":"error","data":["[runtime not ready]: Error: Cannot find native module 'ExpoAsset'"]}
+{"_e":"metro:client_log","_t":1789058682039,"level":"error","data":["[runtime not ready]: Error: Cannot find native module 'ExpoAsset'"]}
+{"_e":"metro:client_log","_t":1789058682281,"level":"error","data":["[runtime not ready]: Invariant Violation: \"main\" has not been registered. This can happen if:\n* Metro (the local dev server) is run from the wrong folder. Check if Metro is running, stop it and restart it in the current project.\n* A module failed to load due to an error and `AppRegistry.registerComponent` wasn't called."]}
+{"_e":"metro:client_log","_t":1789058684205,"level":"error","data":["[runtime not ready]: Error: Non-js exception: AppRegistryBinding::stopSurface failed. Global was not installed."]}
+{"_e":"metro:bundling:started","_t":1789058684231,"id":"8","platform":"ios","environment":null,"entry":"node_modules/expo-router/entry.js"}
+{"_e":"metro:bundling:progress","_t":1789058684232,"id":"8","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789058684314,"id":"8","total":1,"ms":82.367}
+{"_e":"metro:client_log","_t":1789058686421,"level":"warn","data":["Require cycle: src/db/client.ts -> src/db/repositories/index.ts -> src/db/repositories/profileRepository.ts -> src/db/client.ts\n\nRequire cycles are allowed, but can result in uninitialized values. Consider refactoring to remove the need for a cycle."]}
+{"_e":"metro:client_log","_t":1789058686429,"level":"warn","data":["Require cycle: src/db/client.ts -> src/db/repositories/index.ts -> src/db/repositories/outboxRepository.ts -> src/db/client.ts\n\nRequire cycles are allowed, but can result in uninitialized values. Consider refactoring to remove the need for a cycle."]}
+{"_e":"metro:client_log","_t":1789058686435,"level":"warn","data":["Require cycle: src/db/repositories/chatRepository.ts -> src/db/client.ts -> src/db/repositories/index.ts -> src/db/repositories/chatRepository.ts\n\nRequire cycles are allowed, but can result in uninitialized values. Consider refactoring to remove the need for a cycle."]}

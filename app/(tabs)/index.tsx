@@ -5,6 +5,7 @@ import { colors, spacing, radii, typography, accessibility } from "@/theme/token
 import { useProfileStore } from "@/store/useProfileStore";
 import { calculateBMI } from "@/lib/bmi";
 import { Stethoscope, MessageSquare, Bell, ChevronRight, ShieldCheck } from "lucide-react-native";
+import { BodyMetricsCard } from "@/components/dashboard/BodyMetricsCard";
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -56,45 +57,13 @@ export default function DashboardScreen() {
 
         {/* Apple Health Style Baseline Card */}
         {profile && (
-          <View style={styles.section}>
-            <Text style={styles.sectionHeader}>Body Measurements</Text>
-            <View style={styles.groupedCard}>
-              <Pressable
-                style={styles.cardHeaderAction}
-                onPress={() => router.push("/(tabs)/profile")}
-                accessibilityRole="button"
-                accessibilityLabel="View and edit profile metrics"
-              >
-                <View style={styles.metricsGrid}>
-                  <View style={styles.metricColumn}>
-                    <Text style={styles.metricLabel}>Height</Text>
-                    <Text style={styles.metricValue}>{profile.heightCm} cm</Text>
-                  </View>
-                  <View style={styles.metricColumn}>
-                    <Text style={styles.metricLabel}>Weight</Text>
-                    <Text style={styles.metricValue}>{profile.weightKg} kg</Text>
-                  </View>
-                  <View style={styles.metricColumn}>
-                    <Text style={styles.metricLabel}>BMI</Text>
-                    <Text style={styles.metricValue}>
-                      {bmiResult ? bmiResult.formatted : "--"}
-                    </Text>
-                  </View>
-                </View>
-                <ChevronRight size={18} color={colors.textMuted} />
-              </Pressable>
-
-              {profile.healthIssues ? (
-                <>
-                  <View style={styles.rowDivider} />
-                  <View style={styles.conditionRow}>
-                    <Text style={styles.conditionLabel}>Known Conditions</Text>
-                    <Text style={styles.conditionValue}>{profile.healthIssues}</Text>
-                  </View>
-                </>
-              ) : null}
-            </View>
-          </View>
+          <BodyMetricsCard
+            heightCm={profile.heightCm}
+            weightKg={profile.weightKg}
+            bmiFormatted={bmiResult ? bmiResult.formatted : undefined}
+            healthIssues={profile.healthIssues}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
         )}
 
         {/* Quick Action Navigation Rows */}
@@ -135,7 +104,7 @@ export default function DashboardScreen() {
               <View style={styles.serviceContent}>
                 <Text style={styles.serviceTitle}>AI Doctor Consultation</Text>
                 <Text style={styles.serviceSubtitle}>
-                  Profile-aware guidance and home remedies via Cloud Proxy
+                  Profile-aware guidance online with instant offline triage & manual
                 </Text>
               </View>
               <ChevronRight size={18} color={colors.textMuted} />
@@ -261,46 +230,6 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSubtle,
     borderWidth: 1,
     overflow: "hidden",
-  },
-  cardHeaderAction: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: spacing.lg,
-    minHeight: accessibility.minTouchTarget,
-  },
-  metricsGrid: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  metricColumn: {
-    flex: 1,
-  },
-  metricLabel: {
-    ...typography.caption1,
-    color: colors.textSecondary,
-    fontWeight: "500",
-  },
-  metricValue: {
-    ...typography.title2,
-    color: colors.textPrimary,
-    marginTop: 2,
-  },
-  conditionRow: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  conditionLabel: {
-    ...typography.caption2,
-    color: colors.textTertiary,
-    fontWeight: "600",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  conditionValue: {
-    ...typography.subheadline,
-    color: colors.textPrimary,
-    marginTop: 2,
   },
   serviceRow: {
     flexDirection: "row",

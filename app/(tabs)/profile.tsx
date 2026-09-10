@@ -1,16 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, TextInput, Pressable } from "react-native";
+import { useRouter } from "expo-router";
 import { colors, spacing, radii, typography, accessibility } from "@/theme/tokens";
 import { useProfileStore } from "@/store/useProfileStore";
 import { calculateBMI } from "@/lib/bmi";
+import { DemographicsCard } from "@/components/profile/DemographicsCard";
 
 export default function ProfileScreen() {
-  const { profile, saveProfile, syncStatus } = useProfileStore();
+  const router = useRouter();
+  const { profile, loadProfile, saveProfile, syncStatus } = useProfileStore();
 
   const [weightKg, setWeightKg] = useState(profile ? String(profile.weightKg) : "70");
   const [medications, setMedications] = useState(profile?.medications || "");
   const [allergies, setAllergies] = useState(profile?.allergies || "");
   const [savedMessage, setSavedMessage] = useState(false);
+
+  useEffect(() => {
+    if (!profile) {
+      loadProfile("local_user_default");
+    }
+  }, [profile, loadProfile]);
+
+  useEffect(() => {
+    if (profile) {
+      setWeightKg(String(profile.weightKg));
+      setMedications(profile.medications || "");
+      setAllergies(profile.allergies || "");
+    }
+  }, [profile]);
 
   const bmiResult = profile
     ? calculateBMI(profile.heightCm, parseFloat(weightKg) || profile.weightKg)
@@ -43,7 +60,7 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Synchronization</Text>
           <View style={styles.groupedCard}>
-            <View style={styles.row}>
+            <View style={styles.syncRow}>
               <Text style={styles.rowLabel}>Cloud Backup</Text>
               <View
                 style={[
@@ -68,38 +85,14 @@ export default function ProfileScreen() {
         </View>
 
         {/* Demographics Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Baseline Information</Text>
-          <View style={styles.groupedCard}>
-            <View style={styles.row}>
-              <Text style={styles.rowLabel}>Age</Text>
-              <Text style={styles.rowValue}>{profile?.age ?? "--"} years</Text>
-            </View>
-
-            <View style={styles.rowDivider} />
-
-            <View style={styles.row}>
-              <Text style={styles.rowLabel}>Biological Sex</Text>
-              <Text style={styles.rowValue}>{profile?.gender ?? "--"}</Text>
-            </View>
-
-            <View style={styles.rowDivider} />
-
-            <View style={styles.row}>
-              <Text style={styles.rowLabel}>Height</Text>
-              <Text style={styles.rowValue}>{profile?.heightCm ?? "--"} cm</Text>
-            </View>
-
-            <View style={styles.rowDivider} />
-
-            <View style={styles.row}>
-              <Text style={styles.rowLabel}>Current BMI</Text>
-              <Text style={styles.rowValue}>
-                {bmiResult ? `${bmiResult.formatted} (${bmiResult.category})` : "--"}
-              </Text>
-            </View>
-          </View>
-        </View>
+        <DemographicsCard
+          age={profile?.age}
+          gender={profile?.gender}
+          heightCm={profile?.heightCm}
+          bmiFormatted={bmiResult?.formatted}
+          bmiCategory={bmiResult?.category}
+          onEditFullProfile={() => router.push("/onboarding")}
+        />
 
         {/* Editable Health Metrics Section */}
         <View style={styles.section}>
@@ -215,7 +208,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     overflow: "hidden",
   },
-  row: {
+  syncRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -225,10 +218,6 @@ const styles = StyleSheet.create({
   rowLabel: {
     ...typography.body,
     color: colors.textPrimary,
-  },
-  rowValue: {
-    ...typography.body,
-    color: colors.textSecondary,
   },
   inputRow: {
     flexDirection: "row",
