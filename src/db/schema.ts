@@ -2,7 +2,10 @@ import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 
 export const profiles = sqliteTable("profiles", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  uid: text("uid").notNull().unique(),
+  uid: text("uid").notNull(),
+  accountId: text("account_id").notNull().default("local_account_default"),
+  name: text("name").notNull().default("Primary"),
+  relationship: text("relationship").notNull().default("self"),
   age: integer("age").notNull(),
   gender: text("gender").notNull(),
   heightCm: real("height_cm").notNull(),
@@ -27,6 +30,7 @@ export const syncOutbox = sqliteTable("sync_outbox", {
 
 export const conversations = sqliteTable("conversations", {
   id: text("id").primaryKey(),
+  profileId: integer("profile_id"),
   title: text("title").notNull(),
   createdAt: integer("created_at").notNull(),
   updatedAt: integer("updated_at").notNull(),
@@ -45,6 +49,22 @@ export const chatMessages = sqliteTable("chat_messages", {
   createdAt: integer("created_at").notNull(),
 });
 
+export const reminders = sqliteTable("reminders", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  profileId: integer("profile_id").notNull(),
+  name: text("name").notNull(),
+  dosage: text("dosage").notNull().default(""),
+  frequency: text("frequency").notNull().default("daily"),
+  time: text("time").notNull(),
+  active: integer("active").notNull().default(1),
+  createdAt: integer("created_at").notNull(),
+});
+
+export const appSettingsTable = sqliteTable("app_settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+});
+
 export type ProfileRecord = typeof profiles.$inferSelect;
 export type InsertProfileRecord = typeof profiles.$inferInsert;
 export type OutboxRecord = typeof syncOutbox.$inferSelect;
@@ -53,4 +73,5 @@ export type ConversationRecord = typeof conversations.$inferSelect;
 export type InsertConversationRecord = typeof conversations.$inferInsert;
 export type ChatMessageRecord = typeof chatMessages.$inferSelect;
 export type InsertChatMessageRecord = typeof chatMessages.$inferInsert;
-
+export type ReminderRecord = typeof reminders.$inferSelect;
+export type InsertReminderRecord = typeof reminders.$inferInsert;

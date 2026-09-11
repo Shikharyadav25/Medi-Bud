@@ -10,7 +10,7 @@ import {
   updateConversationTitle as updateTitleRepo,
   clearAllConversations as clearAllRepo,
 } from "@/db/repositories/chatRepository";
-import { processChatMessage } from "@/chat/chatEngine";
+import { processChatMessage, ChatEngineInput } from "@/chat/chatEngine";
 import { setForceOffline, isForceOffline } from "@/services/networkService";
 import { generateTitleFromPrompt } from "@/chat/titleGenerator";
 
@@ -25,9 +25,9 @@ interface ChatState {
   language: "en" | "hi";
   selectedImage: { uri: string; base64?: string } | null;
 
-  initStore: () => void;
+  initStore: (profileId?: number) => void;
   selectConversation: (id: string) => void;
-  startNewConversation: (title?: string) => string;
+  startNewConversation: (title?: string, profileId?: number) => string;
   updateConversationTitle: (id: string, title: string) => void;
   deleteConversation: (id: string) => void;
   clearAllConversations: () => void;
@@ -46,6 +46,28 @@ interface ChatState {
   setSelectedImage: (img: { uri: string; base64?: string } | null) => void;
 }
 
+async function handleAssistantReply(
+  input: ChatEngineInput,
+  set: (updater: (s: ChatState) => Partial<ChatState>) => void
+) {
+  try {
+    const assistantPayload = await processChatMessage(input);
+    const assistantMessage: ChatMessage = {
+      ...assistantPayload,
+      id: `msg_${Date.now()}_a`,
+      createdAt: Date.now(),
+    };
+    persistChatMessage(assistantMessage);
+    set((state) => ({
+      messages: [...state.messages, assistantMessage],
+      isLoading: false,
+      activeTreeId: assistantMessage.activeTreeId,
+    }));
+  } catch {
+    set((state) => ({ ...state, isLoading: false }));
+  }
+}
+
 export const useChatStore = create<ChatState>((set, get) => ({
   conversations: [],
   activeConversationId: null,
@@ -57,8 +79,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   language: "en",
   selectedImage: null,
 
-  initStore: () => {
-    const list = fetchConversations();
+  initStore: (profileId?: number) => {
+    const list = fetchConversations(profileId);
     if (list.length > 0) {
       const activeId = list[0].id;
       const msgs = fetchConversationMessages(activeId);
@@ -70,7 +92,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       });
     } else {
       const newId = `conv_${Date.now()}`;
-      const newConv = createConversation(newId, "New Health Consultation");
+      const newConv = createConversation(newId, "New Health Consultation", profileId);
       set({
         conversations: [newConv],
         activeConversationId: newId,
@@ -81,21 +103,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   selectConversation: (id: string) => {
-    const msgs = fetchConversationMessages(id);
     set({
       activeConversationId: id,
-      messages: msgs,
+      messages: fetchConversationMessages(id),
       activeTreeId: undefined,
       selectedImage: null,
     });
   },
 
-  startNewConversation: (title?: string) => {
+  startNewConversation: (title?: string, profileId?: number) => {
     const newId = `conv_${Date.now()}`;
-    const newConv = createConversation(newId, title || "New Health Consultation");
-    const updated = [newConv, ...get().conversations];
+    const newConv = createConversation(newId, title || "New Health Consultation", profileId);
     set({
-      conversations: updated,
+      conversations: [newConv, ...get().conversations],
       activeConversationId: newId,
       messages: [],
       activeTreeId: undefined,
@@ -120,20 +140,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const remaining = get().conversations.filter((c) => c.id !== id);
     if (remaining.length > 0) {
       const nextId = remaining[0].id;
-      const msgs = fetchConversationMessages(nextId);
       set({
         conversations: remaining,
         activeConversationId: nextId,
-        messages: msgs,
+        messages: fetchConversationMessages(nextId),
       });
     } else {
-      const newId = `conv_${Date.now()}`;
-      const newConv = createConversation(newId, "New Health Consultation");
-      set({
-        conversations: [newConv],
-        activeConversationId: newId,
-        messages: [],
-      });
+      get().startNewConversation();
     }
   },
 
@@ -158,15 +171,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const trimmed = text.trim();
     if (!trimmed && !image) return;
 
-    let convId = get().activeConversationId;
-    if (!convId) {
-      convId = get().startNewConversation();
-    }
+    let convId = get().activeConversationId || get().startNewConversation();
 
-    // Auto-generate title if this is the start of a consultation
-    const isFirstMessage = get().messages.length === 0;
+    const isFirst = get().messages.length === 0;
     const currentConv = get().conversations.find((c) => c.id === convId);
-    if (isFirstMessage && currentConv && currentConv.title === "New Health Consultation") {
+    if (isFirst && currentConv && currentConv.title === "New Health Consultation") {
       const smartTitle = generateTitleFromPrompt(trimmed || "Medical Photo Analysis");
       updateTitleRepo(convId, smartTitle);
       set((state) => ({
@@ -190,15 +199,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
     };
 
     persistChatMessage(userMessage);
-
     set((state) => ({
       messages: [...state.messages, userMessage],
       isLoading: true,
       selectedImage: null,
     }));
 
-    try {
-      const assistantPayload = await processChatMessage({
+    await handleAssistantReply(
+      {
         query: trimmed || "Uploaded medical photo",
         conversationId: convId,
         profile,
@@ -207,24 +215,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
         language: get().language,
         imageUri: image?.uri,
         imageBase64: image?.base64,
-      });
-
-      const assistantMessage: ChatMessage = {
-        ...assistantPayload,
-        id: `msg_${Date.now()}_a`,
-        createdAt: Date.now(),
-      };
-
-      persistChatMessage(assistantMessage);
-
-      set((state) => ({
-        messages: [...state.messages, assistantMessage],
-        isLoading: false,
-        activeTreeId: assistantMessage.activeTreeId,
-      }));
-    } catch {
-      set({ isLoading: false });
-    }
+      },
+      set
+    );
   },
 
   selectInteractiveOption: async (
@@ -246,14 +239,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     };
 
     persistChatMessage(userMessage);
-
     set((state) => ({
       messages: [...state.messages, userMessage],
       isLoading: true,
     }));
 
-    try {
-      const assistantPayload = await processChatMessage({
+    await handleAssistantReply(
+      {
         query: option.label,
         conversationId: convId,
         profile,
@@ -262,24 +254,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
         targetTreeId: option.targetTreeId,
         focusCondition: get().focusCondition,
         language: get().language,
-      });
-
-      const assistantMessage: ChatMessage = {
-        ...assistantPayload,
-        id: `msg_${Date.now()}_a`,
-        createdAt: Date.now(),
-      };
-
-      persistChatMessage(assistantMessage);
-
-      set((state) => ({
-        messages: [...state.messages, assistantMessage],
-        isLoading: false,
-        activeTreeId: assistantMessage.activeTreeId,
-      }));
-    } catch {
-      set({ isLoading: false });
-    }
+      },
+      set
+    );
   },
 
   toggleForceOffline: () => {
@@ -288,15 +265,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ isOfflineForced: nextState });
   },
 
-  setFocusCondition: (condition: string) => {
-    set({ focusCondition: condition });
-  },
-
-  setLanguage: (lang: "en" | "hi") => {
-    set({ language: lang });
-  },
-
-  setSelectedImage: (img: { uri: string; base64?: string } | null) => {
-    set({ selectedImage: img });
-  },
+  setFocusCondition: (condition: string) => set({ focusCondition: condition }),
+  setLanguage: (lang: "en" | "hi") => set({ language: lang }),
+  setSelectedImage: (img: { uri: string; base64?: string } | null) => set({ selectedImage: img }),
 }));

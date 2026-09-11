@@ -9,7 +9,7 @@ This document establishes the architecture, code standards, and conventions for 
 1. **Offline-First Source of Truth**:
    - Local SQLite (via `expo-sqlite` and `drizzle-orm`) is the primary source of truth for all reads and writes.
    - The device must be fully navigable and operational in airplane mode (profile, triage, symptom logs, chat history, medication reminders).
-   - Remote servers (Firebase Firestore, Cloud Function Gemini proxy) are eventual-consistency synchronization targets, never blocking prerequisites for local operations.
+   - Remote servers (Supabase PostgreSQL, Supabase Edge Function Gemini proxy) are eventual-consistency synchronization targets, never blocking prerequisites for local operations.
 
 2. **Strict File Size Limits (<300 lines)**:
    - No file may exceed 300 lines under any circumstance.
@@ -28,8 +28,8 @@ This document establishes the architecture, code standards, and conventions for 
 
 5. **Security & Secrets**:
    - Zero API keys or secrets in client code.
-   - All AI calls go through the server-side Cloud Function proxy (`/functions`) with per-UID rate limiting.
-   - Firestore security rules strictly scope access to authenticated `request.auth.uid`.
+   - All AI calls go through the server-side Supabase Edge Function proxy (`/supabase/functions/gemini-proxy`) with per-UID rate limiting.
+   - Supabase Row Level Security (RLS) policies strictly scope access to authenticated `auth.uid() = account_id`.
 
 ---
 
@@ -73,7 +73,9 @@ This document establishes the architecture, code standards, and conventions for 
 │   │   ├── tokens.ts         # Colors, spacing, typography, radii, shadows
 │   │   └── useTheme.ts       # Theme hook
 │   └── lib/                  # Helpers, date formatting, BMI calculators
-├── functions/                # Firebase Cloud Functions (Gemini server proxy)
+├── supabase/                 # Supabase configuration, migrations & Edge Functions
+│   ├── migrations/           # PostgreSQL schema with Row Level Security (RLS)
+│   └── functions/            # Deno Edge Functions (gemini-proxy)
 ├── docs/                     # Architecture & migration documentation
 ├── __tests__/                # Unit & integration tests (Jest)
 └── legacy-web/               # Reference material from legacy Next.js web app

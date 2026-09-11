@@ -14,11 +14,22 @@ export function getDatabase() {
   return dbInstance;
 }
 
+function safeAlterTable(db: SQLite.SQLiteDatabase, sql: string) {
+  try {
+    db.execSync(sql);
+  } catch {
+    // Column already exists or table already migrated
+  }
+}
+
 function bootstrapTables(db: SQLite.SQLiteDatabase) {
   db.execSync(`
     CREATE TABLE IF NOT EXISTS profiles (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      uid TEXT NOT NULL UNIQUE,
+      uid TEXT NOT NULL,
+      account_id TEXT NOT NULL DEFAULT 'local_account_default',
+      name TEXT NOT NULL DEFAULT 'Primary',
+      relationship TEXT NOT NULL DEFAULT 'self',
       age INTEGER NOT NULL,
       gender TEXT NOT NULL,
       height_cm REAL NOT NULL,
@@ -43,6 +54,7 @@ function bootstrapTables(db: SQLite.SQLiteDatabase) {
 
     CREATE TABLE IF NOT EXISTS conversations (
       id TEXT PRIMARY KEY,
+      profile_id INTEGER,
       title TEXT NOT NULL,
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
@@ -60,14 +72,29 @@ function bootstrapTables(db: SQLite.SQLiteDatabase) {
       is_offline INTEGER NOT NULL DEFAULT 0,
       created_at INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS reminders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      profile_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      dosage TEXT NOT NULL DEFAULT '',
+      frequency TEXT NOT NULL DEFAULT 'daily',
+      time TEXT NOT NULL,
+      active INTEGER NOT NULL DEFAULT 1,
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS app_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
   `);
 
-  try {
-    db.execSync(`ALTER TABLE chat_messages ADD COLUMN image_uri TEXT;`);
-  } catch {
-    // Column already exists
-  }
+  safeAlterTable(db, `ALTER TABLE chat_messages ADD COLUMN image_uri TEXT;`);
+  safeAlterTable(db, `ALTER TABLE profiles ADD COLUMN account_id TEXT NOT NULL DEFAULT 'local_account_default';`);
+  safeAlterTable(db, `ALTER TABLE profiles ADD COLUMN name TEXT NOT NULL DEFAULT 'Primary';`);
+  safeAlterTable(db, `ALTER TABLE profiles ADD COLUMN relationship TEXT NOT NULL DEFAULT 'self';`);
+  safeAlterTable(db, `ALTER TABLE conversations ADD COLUMN profile_id INTEGER;`);
 }
 
-// Re-export all repository operations for backwards compatibility
 export * from "./repositories";

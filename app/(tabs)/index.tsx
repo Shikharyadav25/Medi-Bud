@@ -1,22 +1,41 @@
-import React, { useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
-import { colors, spacing, radii, typography, accessibility } from "@/theme/tokens";
+import { colors, spacing, radii, typography } from "@/theme/tokens";
 import { useProfileStore } from "@/store/useProfileStore";
+import { useSettingsStore } from "@/store/useSettingsStore";
 import { calculateBMI } from "@/lib/bmi";
-import { Stethoscope, MessageSquare, Bell, ChevronRight, ShieldCheck } from "lucide-react-native";
+import { ShieldCheck } from "lucide-react-native";
+import { useTranslation } from "@/locales";
 import { BodyMetricsCard } from "@/components/dashboard/BodyMetricsCard";
+import { HealthServicesCard } from "@/components/dashboard/HealthServicesCard";
+import { ProfileSwitcher } from "@/components/profile/ProfileSwitcher";
+import { EmergencyDialerModal } from "@/components/common/EmergencyDialerModal";
+import { AddFamilyMemberModal } from "@/components/profile/AddFamilyMemberModal";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { profile, loadProfile, syncStatus } = useProfileStore();
+  const {
+    profiles,
+    activeProfile,
+    activeProfileId,
+    loadProfiles,
+    setActiveProfile,
+    syncStatus,
+  } = useProfileStore();
+  const { loadSettings } = useSettingsStore();
+  const { t } = useTranslation();
+
+  const [showEmergencyModal, setShowEmergencyModal] = useState(false);
+  const [showAddMember, setShowAddMember] = useState(false);
 
   useEffect(() => {
-    loadProfile("local_user_default");
-  }, [loadProfile]);
+    loadProfiles();
+    loadSettings();
+  }, [loadProfiles, loadSettings]);
 
-  const bmiResult = profile
-    ? calculateBMI(profile.heightCm, profile.weightKg)
+  const bmiResult = activeProfile
+    ? calculateBMI(activeProfile.heightCm, activeProfile.weightKg)
     : null;
 
   return (
@@ -25,9 +44,11 @@ export default function DashboardScreen() {
         {/* Apple HIG Large Title Header */}
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.largeTitle}>Summary</Text>
+            <Text style={styles.largeTitle}>{t.dashboard.title}</Text>
             <Text style={styles.subheadline}>
-              {profile ? `${profile.age}y • ${profile.gender}` : "Health Companion"}
+              {activeProfile
+                ? `${activeProfile.name} • ${activeProfile.age}y • ${activeProfile.gender}`
+                : t.dashboard.healthCompanion}
             </Text>
           </View>
 
@@ -50,96 +71,52 @@ export default function DashboardScreen() {
                 syncStatus === "synced" ? styles.syncOkText : styles.syncPendingText,
               ]}
             >
-              {syncStatus === "synced" ? "Synced" : "Local Only"}
+              {syncStatus === "synced" ? t.dashboard.synced : t.dashboard.queued}
             </Text>
           </View>
         </View>
 
-        {/* Apple Health Style Baseline Card */}
-        {profile && (
+        {/* Profile Switcher for Caregivers & Multi-member households */}
+        <ProfileSwitcher
+          profiles={profiles}
+          activeProfileId={activeProfileId}
+          onSelectProfile={setActiveProfile}
+          onAddProfile={() => setShowAddMember(true)}
+        />
+
+        {/* Body Metrics Baseline Card */}
+        {activeProfile && (
           <BodyMetricsCard
-            heightCm={profile.heightCm}
-            weightKg={profile.weightKg}
+            heightCm={activeProfile.heightCm}
+            weightKg={activeProfile.weightKg}
             bmiFormatted={bmiResult ? bmiResult.formatted : undefined}
-            healthIssues={profile.healthIssues}
+            healthIssues={activeProfile.healthIssues}
             onPress={() => router.push("/(tabs)/profile")}
           />
         )}
 
-        {/* Quick Action Navigation Rows */}
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Health Services</Text>
-          <View style={styles.groupedCard}>
-            {/* Triage */}
-            <Pressable
-              style={styles.serviceRow}
-              onPress={() => router.push("/(tabs)/triage")}
-              accessibilityRole="button"
-              accessibilityLabel="Open Symptom Checker Triage"
-            >
-              <View style={styles.serviceIconContainer}>
-                <Stethoscope size={20} color={colors.textPrimary} strokeWidth={2} />
-              </View>
-              <View style={styles.serviceContent}>
-                <Text style={styles.serviceTitle}>Symptom Checker</Text>
-                <Text style={styles.serviceSubtitle}>
-                  Instant rule-based triage over emergency signs (100% Offline)
-                </Text>
-              </View>
-              <ChevronRight size={18} color={colors.textMuted} />
-            </Pressable>
+        {/* Health Services (Triage, AI Doctor, Reminders, Emergency 112) */}
+        <HealthServicesCard
+          onOpenEmergency={() => setShowEmergencyModal(true)}
+        />
 
-            <View style={styles.rowDivider} />
-
-            {/* AI Chat */}
-            <Pressable
-              style={styles.serviceRow}
-              onPress={() => router.push("/(tabs)/chat")}
-              accessibilityRole="button"
-              accessibilityLabel="Open AI Doctor Consultation"
-            >
-              <View style={styles.serviceIconContainer}>
-                <MessageSquare size={20} color={colors.textPrimary} strokeWidth={2} />
-              </View>
-              <View style={styles.serviceContent}>
-                <Text style={styles.serviceTitle}>AI Doctor Consultation</Text>
-                <Text style={styles.serviceSubtitle}>
-                  Profile-aware guidance online with instant offline triage & manual
-                </Text>
-              </View>
-              <ChevronRight size={18} color={colors.textMuted} />
-            </Pressable>
-
-            <View style={styles.rowDivider} />
-
-            {/* Reminders */}
-            <Pressable
-              style={styles.serviceRow}
-              onPress={() => router.push("/(tabs)/reminders")}
-              accessibilityRole="button"
-              accessibilityLabel="Open Medication Reminders"
-            >
-              <View style={styles.serviceIconContainer}>
-                <Bell size={20} color={colors.textPrimary} strokeWidth={2} />
-              </View>
-              <View style={styles.serviceContent}>
-                <Text style={styles.serviceTitle}>Medication Reminders</Text>
-                <Text style={styles.serviceSubtitle}>
-                  Scheduled local device alerts and daily adherence tracking
-                </Text>
-              </View>
-              <ChevronRight size={18} color={colors.textMuted} />
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Footnote Guarantee */}
+        {/* Local Security Footnote */}
         <View style={styles.footerRow}>
           <ShieldCheck size={16} color={colors.textMuted} />
-          <Text style={styles.footerNote}>
-            Data encrypted locally on this device via SQLite.
-          </Text>
+          <Text style={styles.footerNote}>{t.dashboard.privateNote}</Text>
         </View>
+
+        {/* Modals */}
+        <EmergencyDialerModal
+          visible={showEmergencyModal}
+          onClose={() => setShowEmergencyModal(false)}
+          onSetupContact={() => router.push("/(tabs)/profile")}
+        />
+
+        <AddFamilyMemberModal
+          visible={showAddMember}
+          onClose={() => setShowAddMember(false)}
+        />
       </View>
     </ScrollView>
   );
@@ -162,7 +139,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.lg,
   },
   largeTitle: {
     ...typography.largeTitle,
@@ -211,58 +188,6 @@ const styles = StyleSheet.create({
   },
   syncPendingText: {
     color: colors.soon.text,
-  },
-  section: {
-    marginBottom: spacing.xl,
-  },
-  sectionHeader: {
-    ...typography.footnote,
-    color: colors.textTertiary,
-    fontWeight: "600",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    marginBottom: spacing.xs,
-    paddingHorizontal: spacing.xs,
-  },
-  groupedCard: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    borderColor: colors.borderSubtle,
-    borderWidth: 1,
-    overflow: "hidden",
-  },
-  serviceRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: spacing.lg,
-    minHeight: accessibility.minTouchTarget + 10,
-  },
-  serviceIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: radii.sm,
-    backgroundColor: colors.background,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: spacing.md,
-  },
-  serviceContent: {
-    flex: 1,
-    paddingRight: spacing.sm,
-  },
-  serviceTitle: {
-    ...typography.headline,
-    color: colors.textPrimary,
-  },
-  serviceSubtitle: {
-    ...typography.footnote,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  rowDivider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: colors.borderSubtle,
-    marginLeft: spacing.lg + 36 + spacing.md,
   },
   footerRow: {
     flexDirection: "row",

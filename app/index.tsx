@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { colors, spacing, radii, typography } from "@/theme/tokens";
 import { Stethoscope, ShieldCheck, HeartPulse } from "lucide-react-native";
-import { fetchLocalProfile } from "@/db/client";
+import { fetchLocalProfile, fetchProfilesByAccount } from "@/db/client";
 import { useProfileStore } from "@/store/useProfileStore";
 
 export default function WelcomeScreen() {
@@ -14,9 +14,13 @@ export default function WelcomeScreen() {
 
   useEffect(() => {
     try {
-      const existing = fetchLocalProfile("local_user_default");
+      const profiles = fetchProfilesByAccount("local_account_default");
+      const existing =
+        profiles.length > 0
+          ? profiles[0]
+          : fetchLocalProfile("local_user_default");
       if (existing && existing.age && existing.gender) {
-        loadProfile("local_user_default");
+        loadProfile(existing.uid);
         router.replace("/(tabs)");
         return;
       }

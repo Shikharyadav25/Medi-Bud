@@ -3,37 +3,51 @@ import { getDatabase } from "../client";
 import * as schema from "../schema";
 import { ChatMessage, Conversation } from "@/chat/types";
 
-export function fetchConversations(): Conversation[] {
+export function fetchConversations(profileId?: number): Conversation[] {
   const db = getDatabase();
-  const records = db
+  const query = db
     .select()
-    .from(schema.conversations)
-    .orderBy(desc(schema.conversations.updatedAt))
-    .all();
+    .from(schema.conversations);
+
+  const records = profileId
+    ? query.where(eq(schema.conversations.profileId, profileId)).orderBy(desc(schema.conversations.updatedAt)).all()
+    : query.orderBy(desc(schema.conversations.updatedAt)).all();
 
   return records.map((r) => ({
     id: r.id,
+    profileId: r.profileId ?? undefined,
     title: r.title,
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
   }));
 }
 
-export function createConversation(id: string, title: string): Conversation {
+export function createConversation(
+  id: string,
+  title: string,
+  profileId?: number
+): Conversation {
   const db = getDatabase();
   const now = Date.now();
   const conv: Conversation = {
     id,
+    profileId: profileId ?? undefined,
     title,
     createdAt: now,
     updatedAt: now,
   };
 
   db.insert(schema.conversations)
-    .values(conv)
+    .values({
+      id: conv.id,
+      profileId: conv.profileId ?? null,
+      title: conv.title,
+      createdAt: conv.createdAt,
+      updatedAt: conv.updatedAt,
+    })
     .onConflictDoUpdate({
       target: schema.conversations.id,
-      set: { title, updatedAt: now },
+      set: { title, updatedAt: now, profileId: conv.profileId ?? null },
     })
     .run();
 

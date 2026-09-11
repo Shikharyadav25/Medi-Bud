@@ -121,7 +121,9 @@ export interface ChatMessage {
 
 export interface Conversation {
   id: string;
+  profileId?: number;
   title: string;
   createdAt: number;
   updatedAt: number;
 }
+

@@ -22,6 +22,9 @@ describe("Profile Cloud Sync Service", () => {
       uid: "user_456",
       profile: {
         uid: "user_456",
+        accountId: "test_account",
+        name: "Test User",
+        relationship: "self",
         age: 32,
         gender: "Female",
         heightCm: 165,
@@ -58,6 +61,9 @@ describe("Profile Cloud Sync Service", () => {
       uid: "user_fail",
       profile: {
         uid: "user_fail",
+        accountId: "test_account",
+        name: "Test User",
+        relationship: "self",
         age: 40,
         gender: "Male",
         heightCm: 180,

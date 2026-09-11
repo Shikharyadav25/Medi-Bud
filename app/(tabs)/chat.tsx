@@ -40,12 +40,12 @@ export default function ChatScreen() {
     toggleForceOffline,
   } = useChatStore();
 
-  const { profile, loadProfile } = useProfileStore();
+  const { activeProfile, loadProfiles } = useProfileStore();
 
   useEffect(() => {
-    initStore();
-    loadProfile("local_user_default");
-  }, [initStore, loadProfile]);
+    loadProfiles();
+    initStore(activeProfile?.id);
+  }, [initStore, loadProfiles, activeProfile?.id]);
 
   const activeConv = conversations.find((c) => c.id === activeConversationId);
   const activeTitle = activeConv?.title || "New Consultation";
@@ -54,7 +54,7 @@ export default function ChatScreen() {
     text: string,
     image?: { uri: string; base64?: string } | null
   ) => {
-    sendMessage(text, profile, image);
+    sendMessage(text, activeProfile, image);
     setTimeout(() => {
       listRef.current?.scrollToEnd({ animated: true });
     }, 150);
@@ -68,7 +68,7 @@ export default function ChatScreen() {
         conversations={conversations}
         activeConversationId={activeConversationId}
         onSelectConversation={selectConversation}
-        onNewChat={() => startNewConversation()}
+        onNewChat={() => startNewConversation(undefined, activeProfile?.id)}
         onRenameConversation={updateConversationTitle}
         onDeleteConversation={deleteConversation}
         onClearAll={clearAllConversations}
@@ -80,7 +80,7 @@ export default function ChatScreen() {
         onOpenHistory={() => setShowDrawer(true)}
         isOffline={isOfflineForced}
         onToggleOffline={toggleForceOffline}
-        onNewChat={() => startNewConversation()}
+        onNewChat={() => startNewConversation(undefined, activeProfile?.id)}
         language={language}
         onToggleLanguage={() => setLanguage(language === "en" ? "hi" : "en")}
       />
@@ -100,7 +100,7 @@ export default function ChatScreen() {
             renderItem={({ item, index }) => (
               <ChatMessageItem
                 message={item}
-                onSelectOption={(opt) => selectInteractiveOption(opt, profile)}
+                onSelectOption={(opt) => selectInteractiveOption(opt, activeProfile)}
                 isLastMessage={index === messages.length - 1}
                 language={language}
               />

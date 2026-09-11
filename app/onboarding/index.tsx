@@ -51,6 +51,9 @@ export default function OnboardingScreen() {
       const guestUid = "local_user_default";
       await saveProfile({
         uid: guestUid,
+        accountId: "local_account_default",
+        name: "Primary (Self)",
+        relationship: "self",
         age: parseInt(age, 10) || 30,
         gender: gender || "Other",
         heightCm: parseFloat(heightCm) || 170,

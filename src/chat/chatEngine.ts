@@ -10,6 +10,7 @@ import {
 } from "./offline/decisionTreeEngine";
 import { searchMedicalManual } from "./offline/manualSearchEngine";
 import { enqueueOutbox } from "@/db/client";
+import { useSettingsStore } from "@/store/useSettingsStore";
 
 export interface ChatEngineInput {
   query: string;
@@ -91,8 +92,9 @@ export async function processChatMessage(
     }
   }
 
-  // 3. Online Path: Profile-aware Cloud LLM (Gemini)
-  const isOnline = await checkNetworkOnline();
+  // 3. Online Path: Profile-aware Cloud LLM (Gemini) - bypassed in Low Data Mode
+  const isLowData = useSettingsStore.getState().lowDataMode;
+  const isOnline = !isLowData && (await checkNetworkOnline());
   if (isOnline) {
     try {
       const aiResponse = await queryCloudDoctor(

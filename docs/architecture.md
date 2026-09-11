@@ -28,21 +28,21 @@ flowchart TD
         Internet{"Internet Available?"}
     end
 
-    subgraph Cloud ["Secure Cloud Backend"]
-        Auth["Firebase Authentication\n(UID & ID Token)"]
-        Firestore[("Cloud Firestore\n(users/{uid}/...)")]
-        CloudFunction["Firebase Cloud Function Proxy\n(/api/gemini-proxy)"]
-        RateLimiter["Per-User Rate Limiter\n(Bucket / Cache)"]
+    subgraph Cloud ["Secure Cloud Backend (Supabase)"]
+        Auth["Supabase Authentication\n(JWT & User ID)"]
+        Postgres[("Supabase PostgreSQL\n(Row Level Security / RLS)")]
+        EdgeFunction["Supabase Edge Function Proxy\n(/functions/v1/gemini-proxy)"]
+        RateLimiter["Per-User Rate Limiter\n(Token Window / Sliding Cache)"]
         Gemini["Google Gemini 2.5 Flash API\n(Secret API Key Held Server-Side)"]
 
-        CloudFunction --> RateLimiter
+        EdgeFunction --> RateLimiter
         RateLimiter --> Gemini
     end
 
     OutboxWorker --> Internet
-    Internet -- "Yes: Sync Records" --> Firestore
-    Internet -- "Yes: AI Requests (with Bearer Token)" --> CloudFunction
-    CloudFunction -- "Verify UID" --> Auth
+    Internet -- "Yes: Sync Relational Records" --> Postgres
+    Internet -- "Yes: AI Requests (with Bearer JWT)" --> EdgeFunction
+    EdgeFunction -- "Verify UID" --> Auth
 ```
 
 ---
@@ -60,7 +60,7 @@ sequenceDiagram
     participant DB as Local SQLite (Drizzle)
     participant Outbox as Sync Outbox Table
     participant Worker as Background Sync Worker
-    participant Cloud as Cloud Function / Firestore
+    participant Cloud as Supabase Edge Function / Postgres
 
     User->>UI: Submit Action (e.g. Update Profile / Send AI Query)
     UI->>Store: Dispatch optimistic update
@@ -76,7 +76,7 @@ sequenceDiagram
     else Device comes Online
         Worker->>Outbox: Fetch pending tasks ordered by priority & timestamp
         Worker->>Outbox: Mark task as 'processing'
-        Worker->>Cloud: Send batch payload with Firebase Auth Bearer token
+        Worker->>Cloud: Send batch payload with Supabase JWT Bearer token
         alt Cloud Call Successful
             Cloud-->>Worker: 200 OK + Sync confirmation / AI response
             Worker->>DB: Update entity (status: 'synced', AI response written)
@@ -99,53 +99,32 @@ The local SQLite database contains all application data needed for offline opera
 
 | Table | Purpose | Offline Read/Write |
 |---|---|---|
-| `profiles` | User demographics, conditions, medications, allergies | Reads & Writes local-first; queued to outbox |
-| `symptom_evaluations` | Offline triage results and online AI elaborations | Offline rule evaluation; cached locally |
-| `conversations` | AI chat session metadata | Created and read offline |
-| `messages` | Chat messages with structured health cards | Saved offline; pending queries queued to outbox |
-| `medication_reminders` | Local medication schedules & adherence logs | Managed 100% offline with local notifications |
+| `profiles` | Multi-profile family records under an account (`accountId`, `name`, `relationship`, `age`, ...) | Reads & Writes local-first; queued to outbox |
+| `symptom_evaluations` | Offline triage results and online AI elaborations (scoped to `profileId`) | Offline rule evaluation; cached locally |
+| `conversations` | AI chat session metadata (scoped to `profileId`) | Created and read offline |
+| `chat_messages` | Chat messages with structured health cards | Saved offline; pending queries queued to outbox |
+| `reminders` | Local medication schedules & adherence logs (scoped to `profileId`) | Managed 100% offline with local notifications |
 | `sync_outbox` | Eventual consistency task queue | Enqueued locally, drained when online |
 
-### Cloud Firestore Structure (`@react-native-firebase/firestore`)
-Firestore mirrors the local database for multi-device sync and backup. It is **never** accessed as a blocking read prerequisite for the client UI:
+### Cloud Supabase PostgreSQL Structure
+PostgreSQL naturally mirrors the local relational schema without NoSQL translation impedance:
 
-```
-users/
-  └── {userId}/
-        ├── profile/
-        │     └── main (demographics, health issues, medications, allergies)
-        ├── symptom_history/
-        │     └── {evalId} (symptoms, triage urgency, causes, advice)
-        ├── conversations/
-        │     └── {convId} (title, timestamps)
-        │           └── messages/
-        │                 └── {messageId} (role, content, cards)
-        └── reminders/
-              └── {reminderId} (name, dosage, times, active)
-```
+- `profiles` (`id`, `account_id`, `name`, `relationship`, `age`, `gender`, `height_cm`, `weight_kg`, `health_issues`, `medications`, `allergies`, `updated_at`)
+- `conversations` (`id`, `account_id`, `profile_id`, `title`, `created_at`, `updated_at`)
+- `chat_messages` (`id`, `conversation_id`, `role`, `content`, `cards_json`, `interactive_json`, `image_uri`, `source`, `is_offline`, `created_at`)
+- `reminders` (`id`, `account_id`, `profile_id`, `name`, `dosage`, `frequency`, `time`, `active`, `created_at`)
+- `symptom_evaluations` (`id`, `account_id`, `profile_id`, `symptoms_json`, `urgency`, `advice`, `red_flags_detected`, `created_at`)
 
 ---
 
 ## 4. Security & Privacy Architecture
 
 1. **Zero Client Secrets**:
-   - The client application contains neither `GEMINI_API_KEY` nor any privileged administrative credentials.
-   - All external AI requests route through the Firebase Cloud Function proxy, which authenticates the user's Firebase ID token via the Firebase Admin SDK.
+   - The client application contains neither `GEMINI_API_KEY` nor any database master key.
+   - External AI requests route through the Supabase Edge Function proxy, which authenticates the user's Supabase JWT.
 
 2. **Per-User Rate Limiting**:
-   - The Cloud Function implements token-bucket or window-based rate limiting keyed by `request.auth.uid` (e.g. max 30 queries per hour per user).
-   - Protects server resources and costs against automated abuse or compromised devices.
+   - The Edge Function implements sliding-window rate limiting keyed by authenticated `account_id` (e.g. max 30 queries per 15 minutes).
 
-3. **Firestore Security Rules**:
-   - Direct access to `users/{userId}` is strictly gated:
-     ```javascript
-     rules_version = '2';
-     service cloud.firestore {
-       match /databases/{database}/documents {
-         match /users/{userId}/{document=**} {
-           allow read, write: if request.auth != null && request.auth.uid == userId;
-         }
-       }
-     }
-     ```
-   - Cross-user data leakage is impossible at the database level.
+3. **Row Level Security (RLS)**:
+   - Tables enforce `auth.uid() = account_id` directly in PostgreSQL, mathematically preventing cross-user data exposure.
