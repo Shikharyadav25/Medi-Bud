@@ -7,9 +7,11 @@ import {
   Stethoscope,
   MessageSquare,
   Bell,
+  UtensilsCrossed,
   ChevronRight,
   ShieldAlert,
 } from "lucide-react-native";
+
 
 interface HealthServicesCardProps {
   onOpenEmergency: () => void;
@@ -84,7 +86,29 @@ export function HealthServicesCard({ onOpenEmergency }: HealthServicesCardProps)
 
         <View style={styles.rowDivider} />
 
+        {/* Personalised Diet Planner */}
+        <Pressable
+          style={styles.serviceRow}
+          onPress={() => router.push("/diet")}
+          accessibilityRole="button"
+          accessibilityLabel="Open Personalised Diet Planner"
+        >
+          <View style={styles.serviceIconContainer}>
+            <UtensilsCrossed size={20} color={colors.textPrimary} strokeWidth={2} />
+          </View>
+          <View style={styles.serviceContent}>
+            <Text style={styles.serviceTitle}>{t.dashboard.dietPlanner}</Text>
+            <Text style={styles.serviceSubtitle}>
+              {t.dashboard.dietPlannerSub}
+            </Text>
+          </View>
+          <ChevronRight size={18} color={colors.textMuted} />
+        </Pressable>
+
+        <View style={styles.rowDivider} />
+
         {/* One-Tap Emergency Dial */}
+
         <Pressable
           style={[styles.serviceRow, styles.emergencyRow]}
           onPress={onOpenEmergency}

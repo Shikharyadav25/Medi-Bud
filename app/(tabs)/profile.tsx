@@ -9,7 +9,9 @@ import { useTranslation } from "@/locales";
 import { DemographicsCard } from "@/components/profile/DemographicsCard";
 import { FamilyMembersCard } from "@/components/profile/FamilyMembersCard";
 import { HealthConditionsCard } from "@/components/profile/HealthConditionsCard";
+import { DietSettingsCard } from "@/components/profile/DietSettingsCard";
 import { AppSettingsCard } from "@/components/profile/AppSettingsCard";
+
 import { EmergencyContactModal } from "@/components/profile/EmergencyContactModal";
 import { AddFamilyMemberModal } from "@/components/profile/AddFamilyMemberModal";
 
@@ -102,7 +104,11 @@ export default function ProfileScreen() {
           onSave={handleUpdate}
         />
 
+        {/* Dietary Goals & Clinical Rules Card */}
+        <DietSettingsCard />
+
         {/* Application Preferences & Settings */}
+
         <AppSettingsCard
           onEditEmergencyContact={() => setShowEmergencyModal(true)}
         />

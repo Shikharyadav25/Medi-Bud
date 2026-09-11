@@ -65,6 +65,31 @@ export const appSettingsTable = sqliteTable("app_settings", {
   value: text("value").notNull(),
 });
 
+export const dietPreferencesTable = sqliteTable("diet_preferences", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  profileId: integer("profile_id").notNull(),
+  dietType: text("diet_type").notNull().default("veg"),
+  cuisineType: text("cuisine_type").notNull().default("simple_home"),
+  activityLevel: text("activity_level").notNull().default("sedentary"),
+  primaryGoal: text("primary_goal").notNull().default("maintain"),
+  targetCalories: integer("target_calories").notNull(),
+  targetProtein: real("target_protein").notNull(),
+  targetCarbs: real("target_carbs").notNull(),
+  targetFats: real("target_fats").notNull(),
+  targetWaterL: real("target_water_l").notNull().default(2.3),
+  updatedAt: integer("updated_at").notNull(),
+});
+
+export const dietMealLogsTable = sqliteTable("diet_meal_logs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  profileId: integer("profile_id").notNull(),
+  date: text("date").notNull(),
+  mealType: text("meal_type").notNull(),
+  mealId: text("meal_id").notNull(),
+  completed: integer("completed").notNull().default(0),
+  loggedAt: integer("logged_at").notNull(),
+});
+
 export type ProfileRecord = typeof profiles.$inferSelect;
 export type InsertProfileRecord = typeof profiles.$inferInsert;
 export type OutboxRecord = typeof syncOutbox.$inferSelect;
@@ -75,3 +100,8 @@ export type ChatMessageRecord = typeof chatMessages.$inferSelect;
 export type InsertChatMessageRecord = typeof chatMessages.$inferInsert;
 export type ReminderRecord = typeof reminders.$inferSelect;
 export type InsertReminderRecord = typeof reminders.$inferInsert;
+export type DietPreferenceRecord = typeof dietPreferencesTable.$inferSelect;
+export type InsertDietPreferenceRecord = typeof dietPreferencesTable.$inferInsert;
+export type DietMealLogRecord = typeof dietMealLogsTable.$inferSelect;
+export type InsertDietMealLogRecord = typeof dietMealLogsTable.$inferInsert;
+

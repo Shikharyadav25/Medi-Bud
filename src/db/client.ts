@@ -88,6 +88,31 @@ function bootstrapTables(db: SQLite.SQLiteDatabase) {
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS diet_preferences (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      profile_id INTEGER NOT NULL UNIQUE,
+      diet_type TEXT NOT NULL DEFAULT 'veg',
+      cuisine_type TEXT NOT NULL DEFAULT 'simple_home',
+      activity_level TEXT NOT NULL DEFAULT 'sedentary',
+      primary_goal TEXT NOT NULL DEFAULT 'maintain',
+      target_calories INTEGER NOT NULL,
+      target_protein REAL NOT NULL,
+      target_carbs REAL NOT NULL,
+      target_fats REAL NOT NULL,
+      target_water_l REAL NOT NULL DEFAULT 2.3,
+      updated_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS diet_meal_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      profile_id INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      meal_type TEXT NOT NULL,
+      meal_id TEXT NOT NULL,
+      completed INTEGER NOT NULL DEFAULT 0,
+      logged_at INTEGER NOT NULL
+    );
   `);
 
   safeAlterTable(db, `ALTER TABLE chat_messages ADD COLUMN image_uri TEXT;`);
@@ -96,5 +121,6 @@ function bootstrapTables(db: SQLite.SQLiteDatabase) {
   safeAlterTable(db, `ALTER TABLE profiles ADD COLUMN relationship TEXT NOT NULL DEFAULT 'self';`);
   safeAlterTable(db, `ALTER TABLE conversations ADD COLUMN profile_id INTEGER;`);
 }
+
 
 export * from "./repositories";
