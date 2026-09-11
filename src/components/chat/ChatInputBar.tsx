@@ -12,7 +12,7 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { colors, spacing, typography, radii, accessibility } from "@/theme/tokens";
 import { ArrowUp, ImagePlus, Mic, X } from "lucide-react-native";
-import { VoiceRecordModal } from "./VoiceRecordModal";
+import { VoiceInputSheet } from "./VoiceInputSheet";
 
 interface ChatInputBarProps {
   onSendMessage: (
@@ -21,13 +21,14 @@ interface ChatInputBarProps {
   ) => void;
   isLoading: boolean;
   onSelectShortcut?: (text: string) => void;
+  language?: "en" | "hi";
 }
 
 const SHORTCUT_CHIPS = [
-  { label: "🔥 Burn / जलना", text: "How to treat a burn?" },
-  { label: "🫀 Chest / सीने में दर्द", text: "Check my chest pain symptoms" },
-  { label: "🌡️ Fever / बुखार", text: "High fever in toddler" },
-  { label: "📖 GERD / एसिडिटी", text: "What helps with acid reflux and gas?" },
+  { label: "🔥 Burn Care", text: "How to treat a burn?" },
+  { label: "🫀 Chest Pain", text: "Check my chest pain symptoms" },
+  { label: "🌡️ High Fever", text: "High fever in toddler" },
+  { label: "📖 Acid Reflux", text: "What helps with acid reflux and gas?" },
   { label: "🩺 Guided Triage", text: "Start guided symptom triage" },
 ];
 
@@ -35,6 +36,7 @@ export function ChatInputBar({
   onSendMessage,
   isLoading,
   onSelectShortcut,
+  language = "en",
 }: ChatInputBarProps) {
   const [inputText, setInputText] = useState("");
   const [selectedImage, setSelectedImage] = useState<{
@@ -76,10 +78,13 @@ export function ChatInputBar({
 
   return (
     <View style={styles.outerContainer}>
-      <VoiceRecordModal
+      <VoiceInputSheet
         visible={showVoiceModal}
         onClose={() => setShowVoiceModal(false)}
-        onVoiceTranscribed={(text) => setInputText((prev) => (prev ? `${prev} ${text}` : text))}
+        onVoiceTranscribed={(text) =>
+          setInputText((prev) => (prev ? `${prev} ${text}` : text))
+        }
+        language={language}
       />
 
       {/* Image Preview thumbnail if selected */}
@@ -128,7 +133,7 @@ export function ChatInputBar({
           accessibilityRole="button"
           accessibilityLabel="Attach medical image or lab report"
         >
-          <ImagePlus size={20} color={colors.textSecondary} strokeWidth={2} />
+          <ImagePlus size={20} color={colors.textSecondary} strokeWidth={1.8} />
         </Pressable>
 
         {/* Voice dictation button */}
@@ -138,7 +143,7 @@ export function ChatInputBar({
           accessibilityRole="button"
           accessibilityLabel="Record voice message"
         >
-          <Mic size={20} color={colors.textSecondary} strokeWidth={2} />
+          <Mic size={20} color={colors.textSecondary} strokeWidth={1.8} />
         </Pressable>
 
         <TextInput

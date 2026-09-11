@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -14,19 +14,27 @@ import { ChatHeader } from "@/components/chat/ChatHeader";
 import { ChatMessageItem } from "@/components/chat/ChatMessageItem";
 import { ChatEmptyState } from "@/components/chat/ChatEmptyState";
 import { ChatInputBar } from "@/components/chat/ChatInputBar";
+import { ChatDrawer } from "@/components/chat/ChatDrawer";
 
 export default function ChatScreen() {
   const insets = useSafeAreaInsets();
   const listRef = useRef<FlatList>(null);
+  const [showDrawer, setShowDrawer] = useState(false);
 
   const {
+    conversations,
+    activeConversationId,
     messages,
     isLoading,
     isOfflineForced,
     language,
     setLanguage,
     initStore,
+    selectConversation,
     startNewConversation,
+    updateConversationTitle,
+    deleteConversation,
+    clearAllConversations,
     sendMessage,
     selectInteractiveOption,
     toggleForceOffline,
@@ -38,6 +46,9 @@ export default function ChatScreen() {
     initStore();
     loadProfile("local_user_default");
   }, [initStore, loadProfile]);
+
+  const activeConv = conversations.find((c) => c.id === activeConversationId);
+  const activeTitle = activeConv?.title || "New Consultation";
 
   const handleSendMessage = (
     text: string,
@@ -51,7 +62,22 @@ export default function ChatScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      <ChatDrawer
+        visible={showDrawer}
+        onClose={() => setShowDrawer(false)}
+        conversations={conversations}
+        activeConversationId={activeConversationId}
+        onSelectConversation={selectConversation}
+        onNewChat={() => startNewConversation()}
+        onRenameConversation={updateConversationTitle}
+        onDeleteConversation={deleteConversation}
+        onClearAll={clearAllConversations}
+      />
+
       <ChatHeader
+        title={activeTitle}
+        savedCount={conversations.length}
+        onOpenHistory={() => setShowDrawer(true)}
         isOffline={isOfflineForced}
         onToggleOffline={toggleForceOffline}
         onNewChat={() => startNewConversation()}
@@ -76,6 +102,7 @@ export default function ChatScreen() {
                 message={item}
                 onSelectOption={(opt) => selectInteractiveOption(opt, profile)}
                 isLastMessage={index === messages.length - 1}
+                language={language}
               />
             )}
             contentContainerStyle={styles.listContent}
@@ -91,6 +118,7 @@ export default function ChatScreen() {
             onSendMessage={handleSendMessage}
             isLoading={isLoading}
             onSelectShortcut={handleSendMessage}
+            language={language}
           />
         </View>
       </KeyboardAvoidingView>

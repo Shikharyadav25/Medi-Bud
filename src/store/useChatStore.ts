@@ -7,9 +7,12 @@ import {
   fetchConversationMessages,
   persistChatMessage,
   deleteConversation as deleteConvRepo,
+  updateConversationTitle as updateTitleRepo,
+  clearAllConversations as clearAllRepo,
 } from "@/db/repositories/chatRepository";
 import { processChatMessage } from "@/chat/chatEngine";
 import { setForceOffline, isForceOffline } from "@/services/networkService";
+import { generateTitleFromPrompt } from "@/chat/titleGenerator";
 
 interface ChatState {
   conversations: Conversation[];
@@ -25,6 +28,9 @@ interface ChatState {
   initStore: () => void;
   selectConversation: (id: string) => void;
   startNewConversation: (title?: string) => string;
+  updateConversationTitle: (id: string, title: string) => void;
+  deleteConversation: (id: string) => void;
+  clearAllConversations: () => void;
   sendMessage: (
     text: string,
     profile: UserProfile | null,
@@ -38,7 +44,6 @@ interface ChatState {
   setFocusCondition: (condition: string) => void;
   setLanguage: (lang: "en" | "hi") => void;
   setSelectedImage: (img: { uri: string; base64?: string } | null) => void;
-  deleteConversation: (id: string) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -99,6 +104,52 @@ export const useChatStore = create<ChatState>((set, get) => ({
     return newId;
   },
 
+  updateConversationTitle: (id: string, title: string) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+    updateTitleRepo(id, trimmed);
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === id ? { ...c, title: trimmed } : c
+      ),
+    }));
+  },
+
+  deleteConversation: (id: string) => {
+    deleteConvRepo(id);
+    const remaining = get().conversations.filter((c) => c.id !== id);
+    if (remaining.length > 0) {
+      const nextId = remaining[0].id;
+      const msgs = fetchConversationMessages(nextId);
+      set({
+        conversations: remaining,
+        activeConversationId: nextId,
+        messages: msgs,
+      });
+    } else {
+      const newId = `conv_${Date.now()}`;
+      const newConv = createConversation(newId, "New Health Consultation");
+      set({
+        conversations: [newConv],
+        activeConversationId: newId,
+        messages: [],
+      });
+    }
+  },
+
+  clearAllConversations: () => {
+    clearAllRepo();
+    const newId = `conv_${Date.now()}`;
+    const newConv = createConversation(newId, "New Health Consultation");
+    set({
+      conversations: [newConv],
+      activeConversationId: newId,
+      messages: [],
+      activeTreeId: undefined,
+      selectedImage: null,
+    });
+  },
+
   sendMessage: async (
     text: string,
     profile: UserProfile | null,
@@ -110,6 +161,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
     let convId = get().activeConversationId;
     if (!convId) {
       convId = get().startNewConversation();
+    }
+
+    // Auto-generate title if this is the start of a consultation
+    const isFirstMessage = get().messages.length === 0;
+    const currentConv = get().conversations.find((c) => c.id === convId);
+    if (isFirstMessage && currentConv && currentConv.title === "New Health Consultation") {
+      const smartTitle = generateTitleFromPrompt(trimmed || "Medical Photo Analysis");
+      updateTitleRepo(convId, smartTitle);
+      set((state) => ({
+        conversations: state.conversations.map((c) =>
+          c.id === convId ? { ...c, title: smartTitle } : c
+        ),
+      }));
     }
 
     const now = Date.now();
@@ -234,26 +298,5 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setSelectedImage: (img: { uri: string; base64?: string } | null) => {
     set({ selectedImage: img });
-  },
-
-  deleteConversation: (id: string) => {
-    deleteConvRepo(id);
-    const remaining = get().conversations.filter((c) => c.id !== id);
-    if (remaining.length > 0) {
-      const nextId = remaining[0].id;
-      const msgs = fetchConversationMessages(nextId);
-      set({
-        conversations: remaining,
-        activeConversationId: nextId,
-        messages: msgs,
-      });
-    } else {
-      set({
-        conversations: [],
-        activeConversationId: null,
-        messages: [],
-      });
-      get().initStore();
-    }
   },
 }));

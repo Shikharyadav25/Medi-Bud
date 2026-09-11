@@ -1,31 +1,65 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { ChatMessage, DecisionTreeOption } from "@/chat/types";
 import { colors, spacing, typography, radii } from "@/theme/tokens";
+import { speakText, stopSpeaking } from "@/services/speechService";
 import { ChatCardSection } from "./ChatCardSection";
 import { ChatInteractiveOptions } from "./ChatInteractiveOptions";
-import { Stethoscope, User, Copy, Check } from "lucide-react-native";
+import {
+  Stethoscope,
+  User,
+  Copy,
+  Check,
+  Volume2,
+  Square,
+} from "lucide-react-native";
 
 interface ChatMessageItemProps {
   message: ChatMessage;
   onSelectOption?: (option: DecisionTreeOption) => void;
   isLastMessage?: boolean;
+  language?: "en" | "hi";
 }
 
 export function ChatMessageItem({
   message,
   onSelectOption,
   isLastMessage = false,
+  language = "en",
 }: ChatMessageItemProps) {
   const [copied, setCopied] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const isUser = message.role === "user";
+
+  useEffect(() => {
+    return () => {
+      if (isPlayingAudio) {
+        stopSpeaking();
+      }
+    };
+  }, [isPlayingAudio]);
 
   const handleCopy = async () => {
     if (!message.content) return;
     await Clipboard.setStringAsync(message.content);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  };
+
+  const handleToggleAudio = () => {
+    if (isPlayingAudio) {
+      stopSpeaking();
+      setIsPlayingAudio(false);
+    } else {
+      setIsPlayingAudio(true);
+      speakText(message.content, {
+        language,
+        onDone: () => setIsPlayingAudio(false),
+        onStopped: () => setIsPlayingAudio(false),
+        onError: () => setIsPlayingAudio(false),
+      });
+    }
   };
 
   const sourceLabel =
@@ -52,6 +86,7 @@ export function ChatMessageItem({
         style={[
           styles.bubble,
           isUser ? styles.bubbleUser : styles.bubbleAssistant,
+          isPlayingAudio && styles.bubblePlayingAudio,
         ]}
       >
         {!isUser && (
@@ -94,7 +129,7 @@ export function ChatMessageItem({
           />
         )}
 
-        {/* Footer with time and copy action */}
+        {/* Footer with time and actions */}
         <View style={styles.footerRow}>
           <Text
             style={[
@@ -108,37 +143,65 @@ export function ChatMessageItem({
             })}
           </Text>
 
-          <Pressable
-            onPress={handleCopy}
-            hitSlop={10}
-            style={styles.copyButton}
-            accessibilityRole="button"
-            accessibilityLabel="Copy message"
-          >
-            {copied ? (
-              <Check
-                size={12}
-                color={isUser ? "#86EFAC" : colors.selfCare.text}
-                strokeWidth={2.5}
-              />
-            ) : (
-              <Copy
-                size={12}
-                color={isUser ? "rgba(255,255,255,0.6)" : colors.textMuted}
-                strokeWidth={2}
-              />
-            )}
-            {copied && (
-              <Text
-                style={[
-                  styles.copiedText,
-                  isUser ? styles.copiedTextUser : styles.copiedTextAssistant,
-                ]}
+          <View style={styles.footerActions}>
+            {!isUser && (
+              <Pressable
+                onPress={handleToggleAudio}
+                hitSlop={8}
+                style={styles.copyButton}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  isPlayingAudio ? "Stop reading aloud" : "Listen to advice"
+                }
               >
-                Copied
-              </Text>
+                {isPlayingAudio ? (
+                  <Square size={11} color={colors.emergency.text} strokeWidth={2.5} />
+                ) : (
+                  <Volume2 size={12} color={colors.textMuted} strokeWidth={2} />
+                )}
+                <Text
+                  style={[
+                    styles.actionText,
+                    isPlayingAudio ? styles.actionTextEmergency : styles.actionTextMuted,
+                  ]}
+                >
+                  {isPlayingAudio ? "Stop" : "Listen"}
+                </Text>
+              </Pressable>
             )}
-          </Pressable>
+
+            <Pressable
+              onPress={handleCopy}
+              hitSlop={8}
+              style={styles.copyButton}
+              accessibilityRole="button"
+              accessibilityLabel="Copy message"
+            >
+              {copied ? (
+                <Check
+                  size={12}
+                  color={isUser ? "#86EFAC" : colors.selfCare.text}
+                  strokeWidth={2.5}
+                />
+              ) : (
+                <Copy
+                  size={12}
+                  color={isUser ? "rgba(255,255,255,0.6)" : colors.textMuted}
+                  strokeWidth={2}
+                />
+              )}
+              {copied && (
+                <Text
+                  style={[
+                    styles.copiedText,
+                    isUser ? styles.copiedTextUser : styles.copiedTextAssistant,
+                  ]}
+                >
+                  Copied
+                </Text>
+              )}
+            </Pressable>
+          </View>
         </View>
       </Pressable>
 
@@ -198,6 +261,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderBottomLeftRadius: radii.xs,
   },
+  bubblePlayingAudio: {
+    borderColor: colors.primary,
+  },
   messageImage: {
     width: 200,
     height: 140,
@@ -246,6 +312,11 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     gap: spacing.sm,
   },
+  footerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
   timeText: {
     ...typography.caption2,
     fontSize: 10,
@@ -262,6 +333,16 @@ const styles = StyleSheet.create({
     gap: 3,
     paddingVertical: 1,
     paddingHorizontal: 4,
+  },
+  actionText: {
+    fontSize: 10,
+    fontWeight: "600",
+  },
+  actionTextEmergency: {
+    color: colors.emergency.text,
+  },
+  actionTextMuted: {
+    color: colors.textMuted,
   },
   copiedText: {
     fontSize: 10,

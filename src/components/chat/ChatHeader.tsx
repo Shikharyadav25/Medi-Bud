@@ -1,9 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { colors, spacing, typography, radii } from "@/theme/tokens";
-import { Wifi, WifiOff, Plus, Languages } from "lucide-react-native";
+import { Wifi, WifiOff, SquarePen, Languages, History } from "lucide-react-native";
 
 interface ChatHeaderProps {
+  title?: string;
+  savedCount?: number;
+  onOpenHistory: () => void;
   isOffline: boolean;
   onToggleOffline: () => void;
   onNewChat: () => void;
@@ -12,6 +15,9 @@ interface ChatHeaderProps {
 }
 
 export function ChatHeader({
+  title = "AI Doctor",
+  savedCount = 0,
+  onOpenHistory,
   isOffline,
   onToggleOffline,
   onNewChat,
@@ -20,13 +26,34 @@ export function ChatHeader({
 }: ChatHeaderProps) {
   return (
     <View style={styles.headerContainer}>
-      <View style={styles.titleColumn}>
-        <Text style={styles.title}>AI Doctor</Text>
-        <Text style={styles.subtitle}>
-          {language === "hi" ? "प्रोफ़ाइल-जागरूक परामर्श" : "Profile-Aware Consultation"}
-        </Text>
-      </View>
+      {/* Left: History Drawer Button */}
+      <Pressable
+        style={styles.historyBtn}
+        onPress={onOpenHistory}
+        accessibilityRole="button"
+        accessibilityLabel={`Open chat history. ${savedCount} saved consultations.`}
+      >
+        <History size={18} color={colors.textPrimary} strokeWidth={2} />
+        {savedCount > 0 && (
+          <View style={styles.countBadge}>
+            <Text style={styles.countBadgeText}>
+              {savedCount > 99 ? "99+" : savedCount}
+            </Text>
+          </View>
+        )}
+      </Pressable>
 
+      {/* Center: Title */}
+      <Pressable style={styles.titleColumn} onPress={onOpenHistory}>
+        <Text style={styles.title} numberOfLines={1}>
+          {title}
+        </Text>
+        <Text style={styles.subtitle}>
+          {language === "hi" ? "प्रोफ़ाइल-जागरूक AI परामर्श" : "Tap to browse past chats"}
+        </Text>
+      </Pressable>
+
+      {/* Right Actions: New Chat, Offline Toggle, Language */}
       <View style={styles.actionsRow}>
         {onToggleLanguage && (
           <Pressable
@@ -37,7 +64,7 @@ export function ChatHeader({
               language === "hi" ? "Hindi" : "English"
             }`}
           >
-            <Languages size={13} color={colors.textPrimary} strokeWidth={2} />
+            <Languages size={12} color={colors.textPrimary} strokeWidth={2} />
             <Text style={styles.langToggleText}>
               {language === "hi" ? "हिंदी" : "EN"}
             </Text>
@@ -51,9 +78,9 @@ export function ChatHeader({
           accessibilityLabel={`Toggle offline mode. Currently ${isOffline ? "Offline" : "Online"}`}
         >
           {isOffline ? (
-            <WifiOff size={13} color={colors.emergency.text} />
+            <WifiOff size={11} color={colors.emergency.text} />
           ) : (
-            <Wifi size={13} color={colors.selfCare.text} />
+            <Wifi size={11} color={colors.selfCare.text} />
           )}
           <Text
             style={[
@@ -61,17 +88,17 @@ export function ChatHeader({
               isOffline ? styles.badgeTextOffline : styles.badgeTextOnline,
             ]}
           >
-            {isOffline ? "Offline Ready" : "Cloud Online"}
+            {isOffline ? "Offline" : "Online"}
           </Text>
         </Pressable>
 
         <Pressable
-          style={styles.iconButton}
+          style={styles.newChatBtn}
           onPress={onNewChat}
           accessibilityRole="button"
           accessibilityLabel="Start new consultation"
         >
-          <Plus size={18} color={colors.textPrimary} strokeWidth={2} />
+          <SquarePen size={17} color={colors.textPrimary} strokeWidth={2} />
         </Pressable>
       </View>
     </View>
@@ -83,35 +110,81 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
     backgroundColor: colors.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.borderSubtle,
+    gap: spacing.xs,
+  },
+  historyBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: radii.full,
+    backgroundColor: colors.surfaceSubtle,
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+  },
+  countBadge: {
+    position: "absolute",
+    top: -2,
+    right: -2,
+    backgroundColor: colors.primary,
+    borderRadius: radii.full,
+    minWidth: 16,
+    height: 16,
+    paddingHorizontal: 3,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  countBadgeText: {
+    fontSize: 9,
+    fontWeight: "700",
+    color: colors.textInverse,
   },
   titleColumn: {
     flex: 1,
+    paddingHorizontal: spacing.xs,
   },
   title: {
     ...typography.headline,
+    fontSize: 15,
     color: colors.textPrimary,
   },
   subtitle: {
     ...typography.caption2,
-    color: colors.textSecondary,
+    fontSize: 11,
+    color: colors.textMuted,
     marginTop: 1,
   },
   actionsRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: 6,
+  },
+  langToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    paddingHorizontal: spacing.xs + 2,
+    paddingVertical: 4,
+    borderRadius: radii.full,
+    backgroundColor: colors.surfaceSubtle,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  langToggleText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.textPrimary,
   },
   badge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
-    paddingHorizontal: spacing.sm + 2,
-    paddingVertical: spacing.xs,
+    gap: 4,
+    paddingHorizontal: spacing.xs + 3,
+    paddingVertical: 4,
     borderRadius: radii.full,
     borderWidth: 1,
   },
@@ -124,7 +197,7 @@ const styles = StyleSheet.create({
     borderColor: colors.emergency.border,
   },
   badgeText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "600",
   },
   badgeTextOnline: {
@@ -133,28 +206,12 @@ const styles = StyleSheet.create({
   badgeTextOffline: {
     color: colors.emergency.text,
   },
-  iconButton: {
+  newChatBtn: {
     width: 36,
     height: 36,
     borderRadius: radii.full,
     backgroundColor: colors.surfaceSubtle,
     alignItems: "center",
     justifyContent: "center",
-  },
-  langToggle: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radii.full,
-    backgroundColor: colors.surfaceSubtle,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-  },
-  langToggleText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: colors.textPrimary,
   },
 });

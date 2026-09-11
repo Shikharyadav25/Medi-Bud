@@ -130,3 +130,21 @@ export function deleteConversation(conversationId: string): void {
     .where(eq(schema.conversations.id, conversationId))
     .run();
 }
+
+export function updateConversationTitle(
+  conversationId: string,
+  title: string
+): void {
+  const db = getDatabase();
+  db.update(schema.conversations)
+    .set({ title, updatedAt: Date.now() })
+    .where(eq(schema.conversations.id, conversationId))
+    .run();
+}
+
+export function clearAllConversations(): void {
+  const db = getDatabase();
+  db.delete(schema.chatMessages).run();
+  db.delete(schema.conversations).run();
+}
+

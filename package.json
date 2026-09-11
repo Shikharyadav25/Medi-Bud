@@ -14,6 +14,7 @@
   "dependencies": {
     "drizzle-orm": "^0.45.2",
     "expo": "~57.0.21",
+    "expo-audio": "~57.0.4",
     "expo-background-fetch": "~57.0.16",
     "expo-clipboard": "~57.0.1",
     "expo-constants": "~57.0.17",
@@ -21,6 +22,7 @@
     "expo-linking": "~57.0.9",
     "expo-notifications": "~57.0.17",
     "expo-router": "~57.0.20",
+    "expo-speech": "~57.0.2",
     "expo-sqlite": "~57.0.2",
     "expo-status-bar": "~57.0.1",
     "expo-task-manager": "~57.0.16",
